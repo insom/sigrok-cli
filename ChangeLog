@@ -1,3 +1,760 @@
+commit 7bdc46d6fcdcfa00dd29ac102f3128aeb44a479c
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Jan 29 21:51:13 2016 +0100
+
+    NEWS: Update for upcoming 0.6.0 release.
+
+commit 09fc39da486b8618d65b66ca96a760478c3e89e2
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Dec 31 18:55:29 2015 +0100
+
+    Update API calls due to recent libsigrok renames.
+    
+     - sr_driver_scan_options() -> sr_driver_scan_options_list()
+    
+     - sr_dev_config_capabilities() -> sr_dev_config_capabilities_list()
+
+commit c7639c1d63d85687618087acdbf5279b94c24117
+Author: Martin Ling <martin-git@earth.li>
+Date:   Tue Nov 3 11:42:30 2015 +0000
+
+    Update for configuration API changes.
+
+commit 1ef118ab81ddbdc3ba96724826e396ef8ad7c882
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Oct 9 18:45:03 2015 +0200
+
+    input: Use own main loop instead of sr_session_run()
+    
+    Again, this is mainly for demonstration purposes, and to make
+    sigrok-cli consistently use the same "modern" API everywhere.
+
+commit 3addebb2440550f9b34a39629bdb7c1ab1d05fc3
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Oct 9 18:33:14 2015 +0200
+
+    build: Require GLib 2.32.0
+    
+    This is needed for the G_SOURCE_REMOVE symbolic constant. Although
+    it would be trivial to make do without it, there is no reason not to
+    bump the requirement since libsigrok depends on GLib 2.32.0 anyway.
+
+commit fd65ec4c9c349a9ed240fedf69946abea7afd047
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Oct 9 18:26:00 2015 +0200
+
+    anykey: Use GLib I/O channel watch
+    
+    Watch for input on a GLib I/O channel using the standard GLib main
+    loop API instead of injecting an FD event source into the sigrok
+    session loop.
+    
+    Also run the session in a main loop created by sigrok-cli instead
+    of using sr_session_run(). This is mainly for demonstration; the
+    GLib I/O watch change would work even with sr_session_run() since
+    it is using the same main context in this case.
+
+commit 2620358aec3debcf4db81709927e8bb787d08b9b
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Oct 9 17:22:21 2015 +0200
+
+    options: Type of G_OPTION_ARG_NONE is gboolean
+    
+    Change mistaken gchar * variables to gboolean type.
+
+commit 19bdd3ddd23223f80c6f6d9465fc39436c69c5c8
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Oct 7 02:05:00 2015 +0200
+
+    Use g_strerror() in favor of strerror().
+
+commit a5396d7bf2d01964b77d714cfcfbcacc641be92a
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Sat Oct 3 17:50:28 2015 +0200
+
+    windows: Install data files into share subdirectory
+    
+    This allows these files to be found on standard paths relative
+    to the executable location.
+
+commit 295be22b52725c65ffbf41b230b9131c47cb2bd8
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Sep 14 17:31:59 2015 +0200
+
+    Makefile.am: Shorten ChangeLog target a bit.
+
+commit c5f46105a8ca33fcd313268a6edb286b028a922b
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Sun Sep 13 22:45:24 2015 +0200
+
+    Build: Move _POSIX_C_SOURCE definition to config.h
+    
+    Do not redefine it though when already set, so that it can be
+    overridden by the user, or indirectly by the compiler settings.
+
+commit d486cbddfe380de95a98646f7626426955e563ee
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Sun Sep 13 22:42:51 2015 +0200
+
+    Build: Include <config.h> first in all source files
+    
+    Since Autoconf places some important feature flags only into the
+    configuration header, it is necessary to include it globally to
+    guarantee a consistent build.
+
+commit 89025e7128b7d2540764eb9b8ef600286ef25f91
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Sep 12 17:06:43 2015 +0200
+
+    Use PRIu64 instead of %ld for uint64_t printing.
+
+commit e29b500cc4292c530ba928961f8f456d668ac6dc
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Sun Sep 6 00:51:10 2015 +0200
+
+    Clean up .gitignore
+
+commit 9d6422708d553d1e892f0ad18053901578d9559f
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Sat Sep 5 23:12:09 2015 +0200
+
+    Build: Adopt modernized Autotools build system
+
+commit 51f029fb17da201aa8953e27cfd18f4d90071dfb
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Sat Sep 5 23:08:51 2015 +0200
+
+    Build: Add copy of sigrok.m4 from libsigrok
+
+commit 21964baec4fe7cf0997f75dec6a837d93f12a4c8
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Sat Sep 5 23:20:21 2015 +0200
+
+    device: Use g_ascii_strcasecmp() for portability
+
+commit 15a14bffcbbc762f81a13de665eeabd2193c3bec
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Sep 8 14:26:22 2015 +0200
+
+    Free trigger after acquisition session.
+
+commit 4c6bfc08f6951ff8a7d0b4b4420de00d1c6fd193
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Wed Sep 2 15:55:41 2015 +0200
+
+    NSIS installer fix for Windows
+
+commit 84b39e3e488c4897df5afb5ffeca21ef30c71fba
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 23 23:21:14 2015 +0200
+
+    Support SR_T_MQ.
+
+commit e950559979908f828a903ede8a50bde091566eed
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 23 23:21:14 2015 +0200
+
+    Support SR_T_MQLIST.
+
+commit e4e4b4724b27addf14b827314104295e4125396a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 23 23:20:40 2015 +0200
+
+    Use new sr_key_info instead of sr_config_info.
+
+commit cbbea0871ba979786ea00f0cf9ed4abe3cc0b857
+Author: Soeren Apel <soeren@apelpie.net>
+Date:   Thu Aug 20 20:24:29 2015 +0200
+
+    session: Use INTERNAL_IO_HANDLING output module flag
+    
+    Also, fix the segfault occuring due to an invalid outfile
+    handle when using srzip.
+
+commit ee639fb40fa43aa3553ef0229def9bcdb8338c2b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Aug 20 19:47:12 2015 +0200
+
+    Pass unitsize to srd_session_send() directly.
+    
+    Follow an API change in libsigrokdecode where srd_inst_channel_set_all()
+    no longer gets passed a unitsize, but rather srd_session_send() gets it.
+    
+    This allows us to avoid having to guess a unitsize based on the number
+    of channels (which guesses incorrectly in some cases).
+    
+    This fixes (parts of) bug #352.
+
+commit 6ffb657795f2c4115a7483580c80f27f8d60d4ec
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Aug 9 17:27:18 2015 +0200
+
+    nsis: Add start menu entries for Zadig.
+    
+    This fixes bug #543.
+
+commit 5899178d2d92d12bb8bed7e6b874ea778b7329c2
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Jul 30 19:11:17 2015 +0200
+
+    Don't open an output file in the case of srzip.
+    
+    This fixes parts of bug #570.
+
+commit 5d7604d168152ce4c419928b20f0ccfeb669ebba
+Author: Soeren Apel <soeren@apelpie.net>
+Date:   Wed Jul 29 21:37:47 2015 +0200
+
+    session: Supply filename to the output module directly
+    
+    This fixes parts of bug #570.
+
+commit 54a3b8eedcf995e009e155f2fe29ceb26e6ff24a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jul 18 18:07:12 2015 +0200
+
+    Build-depend on the upcoming libsigrok + libsigrokdecode 0.4.0.
+
+commit 13be8bd018704c5552790c9a04ac44d3040f1804
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jul 18 18:05:58 2015 +0200
+
+    Bump version to 0.6.0 (the upcoming next major release).
+
+commit 4f3d0b1012b90d2d68ca0b9fcb40d9374764996a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jul 18 18:05:36 2015 +0200
+
+    Append "-git" to the version string.
+    
+    This avoids confusion with the released tarballs.
+
+commit bc5b66d7044337c00a6c2a8af86b910d33a56a90
+Author: Jens Steinhauser <jens.steinhauser@gmail.com>
+Date:   Fri Apr 17 23:28:44 2015 +0200
+
+    Check if hash table is NULL before accessing it.
+    
+    This fixes bug 520.
+
+commit c59bf72b694ab1d08b2ea44de4349c277e206414
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Apr 7 02:38:39 2015 +0200
+
+    autogen.sh: Drop obsolete MinGW/MSYS items.
+    
+    For Windows builds (which require MinGW-w64) we currently support:
+    
+     - cross-builds using MXE (mxe.cc) and possibly other cross-compile setups
+    
+     - native builds using MSYS2 (sf.net/projects/msys2/)
+    
+    Neither of those require explicitly specifying ACLOCAL_DIR.
+
+commit 59e421bbda22512122660aee370d31b88f8ccdf4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Apr 4 19:34:06 2015 +0200
+
+    Update due to sr_driver_list() now taking a context.
+
+commit 23c40b60cd87f9779c6e99a99653f7c68682c852
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Mar 26 21:56:29 2015 +0100
+
+    Minor cosmetics.
+
+commit ad92a2b3072fadfcda1c19c03a27a8fe76984383
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Mar 26 21:51:37 2015 +0100
+
+    Don't check g_free() arguments for NULL.
+    
+    The g_free() call is guaranteed to not segfault when NULL is passed.
+
+commit 662a1e27fa9573a35a6f9a6f699dee2be447826a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Mar 26 21:39:28 2015 +0100
+
+    Various #include file cosmetic fixes.
+    
+    Generally include system headers before local headers, unless there's
+    a technical reason to use another order.
+
+commit 3d24ca2da53f03585db396e67252a7dcd9e67e6e
+Author: Martin Ling <martin-git@earth.li>
+Date:   Wed Mar 25 01:54:52 2015 +0000
+
+    sigrok-cli: Update for sr_session_{new,load} API change.
+
+commit f0f54487c6a146af523d6eb19fcce63422e3f0f1
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Mar 20 19:38:33 2015 +0100
+
+    Minor cosmetics, whitespace- and consistency fixes.
+
+commit abb036855e8a35ddeaf7c8bcba02741d78bc25ba
+Author: Martin Ling <martin-git@earth.li>
+Date:   Thu Mar 19 22:00:34 2015 +0000
+
+    Use sr_dev_channel_enable().
+
+commit 24278d3e7f6baeb32bcc6f52bc2e934d3a658b32
+Author: Martin Ling <martin-git@earth.li>
+Date:   Wed Mar 18 16:40:18 2015 +0000
+
+    Fix memory leak in config_key_has_cap().
+
+commit 28b0b84e7ac805ab5a5c40191012d2739e550c74
+Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Thu Feb 26 16:06:26 2015 +0100
+
+    session.c: Indicate the error type when --config --set fails.
+    
+    When sigrok-cli fails to set a config option it doesn't indicate
+    the actual error as opposed to --get. Print the error message in
+    both cases.
+    
+    Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+commit 15db66c6a90ea967264b66b80d381b89847e3afa
+Author: Aurelien Jacobs <aurel@gnuage.org>
+Date:   Thu Feb 12 17:08:33 2015 +0100
+
+    show: pass NULL parameter to config_key_has_cap() instead of uninitialized cg.
+    
+    It doesn't make sense to pass a cg to this config_key_has_cap() call
+    as it is trying to retrieve the device's global SR_CONF_LIMIT_SAMPLES.
+    
+    This fixes the following warning:
+    
+    show.c: In function ‘show_dev_detail’:
+    show.c:392:8: warning: ‘cg’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+         && config_key_has_cap(driver, sdi, cg, key, SR_CONF_LIST)) {
+            ^
+
+commit 84c250a2ee6152ec0d857f7be142f873fa44e640
+Author: Aurelien Jacobs <aurel@gnuage.org>
+Date:   Thu Feb 12 16:00:54 2015 +0100
+
+    session: remove unused variable 'size'.
+
+commit fb995521e44b36117dcebd8c0134b4f897733fab
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 11 09:49:03 2015 +0100
+
+    Implement support for running transform modules.
+    
+    Syntax:
+    
+     sigrok-cli ... -T <transformmodule>:opt1=val1:opt2=val2 ...
+
+commit 6f7b4c5d7eb49642f8221a85ee6987751fcd81ce
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Feb 10 20:01:07 2015 +0100
+
+    Add -T|--transform-module and show transform modules in -V output.
+
+commit 198487f611d8a7be4fa15017c22fa01a56551ca6
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jan 24 20:52:31 2015 +0100
+
+    README: Update build requirements list.
+
+commit 27d310f019395f2e4d5615b3f88b7255655a8039
+Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Thu Dec 4 17:27:08 2014 +0100
+
+    opt_to_gvar: notify the user in case of invalid values for --config
+    
+    sigrok-cli exits silently in many cases where values passed to --config are
+    empty strings or haven't been converted by GLib functions properly.
+    
+    Check for errors and notify the user.
+    
+    Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+commit e45889373bd907f0b760aab531787d87bf2bf691
+Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Thu Dec 4 17:27:07 2014 +0100
+
+    opt_to_gvar: support SR_T_KEYVALUE
+    
+    The key-value data type is not supported as a configuration option. Implement
+    its support as a GLib dictionary.
+    
+    Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+commit b262d8f2ebd57c7131f2e274803291d82f36118f
+Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Thu Dec 4 17:27:06 2014 +0100
+
+    opt_to_gvar: print an error message for unsupported data types
+    
+    Unsupported data types are silently ignored in opt_to_gvar() switch
+    statement. This leads to confusion as sigrok-cli just exits without
+    giving the user any hint on what's the reason for not setting the option
+    properly.
+    
+    Add an error message for unmatched data types.
+    
+    Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+commit 5b1a6c2a18c7ed5359c372275013873d35c395c0
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Dec 7 17:48:29 2014 +0100
+
+    mingw: Drop libusb0.dll, always use libusb-1.0.
+
+commit 24bd9719166584e3b4e6e6423d6d6bcbc1a88251
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Nov 18 16:24:52 2014 +0100
+
+    Always check config key capabilities before using them.
+
+commit 783e263e581ed7321ca4bdc1ab7a4fafd2100507
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Nov 17 13:59:42 2014 +0100
+
+    Check for config key availability before using it.
+
+commit fea5acabffd4f51c9c6bed25612172bf2727cbde
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Nov 12 00:03:16 2014 +0100
+
+    Use the srzip output module instead of session save API.
+
+commit c6fa2b2e53d04462bd9fd0033b99e9165323762a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Nov 11 16:32:33 2014 +0100
+
+    Use getters now that 'struct sr_dev_inst' is opaque.
+
+commit d75c85291a61a6d83386de95cff6ad279e853ebd
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Oct 27 21:29:17 2014 +0100
+
+    Show driver detail even if no device was found.
+
+commit 5e78186bb0d97e1ce995990c1167c41537ab34dc
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Oct 27 21:28:16 2014 +0100
+
+    show: Handle more datatypes in a generic way.
+
+commit 55bc37760beb4f7b2458d396f2264b050143caef
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Oct 19 11:52:37 2014 +0200
+
+    Fix memory leak.
+
+commit 41ef1ae49a4973e136ffb99849ad98aa570f9f99
+Author: Jens Steinhauser <jens.steinhauser@gmail.com>
+Date:   Sun Oct 19 10:47:31 2014 +0200
+
+    Parse boolean command line options.
+    
+    This fixes bug 450.
+
+commit f553109693c34861f14884b917139bef19d79000
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Oct 2 11:35:07 2014 +0200
+
+    Clean up session file loading.
+
+commit 67a00747d638fad479a69533e190446975643d6a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Sep 23 12:16:50 2014 +0200
+
+    input: Use sr_input_end() at end of input stream.
+
+commit 64f9f5b26544e32b469e59ddca68421375426c05
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Sep 22 15:28:40 2014 +0200
+
+    input: Don't use the sdi until it's ready.
+
+commit 88a195e431d1b0b45dab271966b2f44c217a9298
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Sep 23 22:39:40 2014 +0200
+
+    Set device options when called with --get.
+
+commit 131ae8d0e37293eb71c3c043ff585321afc3a546
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Sep 23 22:38:29 2014 +0200
+
+    Make sure to treat all config keys as uint32_t.
+
+commit c5136a5439708d2fc3a1cbe1e1bcc7ea17a6feac
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Sep 19 12:39:33 2014 +0200
+
+    Fix a compiler warning.
+    
+    input.c: In function ‘load_input_file’:
+    input.c:123:7: warning: ‘fd’ may be used uninitialized in this function
+    [-Wmaybe-uninitialized]
+       len = read(fd, buf->str, BUFSIZE);
+           ^
+    input.c:42:6: note: ‘fd’ was declared here
+      int fd;
+          ^
+
+commit 23cbb4982936a16c9c48534ea50c7103966ffd10
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Sep 17 16:03:45 2014 +0200
+
+    Adapt to config key capabilities.
+
+commit a23105b12a31ce9f329cf73f5536d003cea9e243
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Sep 15 20:26:08 2014 +0200
+
+    Replace ann_format with ann_class.
+    
+    The naming has been changed to "annotation class" a while ago.
+
+commit 4c6a77987e2bbda7c4e9c6f3568ccb7b65226d6c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Sep 13 15:17:49 2014 +0200
+
+    Always save all channels to a session file.
+    
+    This works around limitations of the current API that screw up saving
+    only enabled channels. See bug 410.
+
+commit 62a64762ea3532d12853d431622b8cd05adbcc8c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Sep 10 17:57:01 2014 +0200
+
+    Add --get option.
+
+commit ac1e997dc0ed0b4c162009a5dfa9aaf34b9df8d5
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Sep 9 19:54:36 2014 +0200
+
+    Fail on invalid channel group.
+
+commit dcb420e7b876392ae3bbbaf6a5d41e3d722a7b3a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Sep 7 14:58:16 2014 +0200
+
+    Add missing --show pretty-printers.
+
+commit 902e368ed1dd50b87dd8a93dcae8ca2983f69cc3
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Aug 30 20:17:34 2014 +0200
+
+    Support uint64 input/output module options.
+
+commit 11c747bd45fd415e35a6c054fe22beb3443e05ad
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Aug 29 23:02:19 2014 +0200
+
+    Fix session file loading.
+
+commit b66260b90ab0dc9a4c3df56fba4ea794f74fdec5
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Aug 28 01:50:49 2014 +0200
+
+    Use sr_input_scan_*() API changes.
+
+commit a48ddcc122a4ec8625c634041f4d635ff5935565
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Aug 28 00:17:05 2014 +0200
+
+    Always consider input from stdin as a non-session format.
+
+commit 47f97410b41a4d83d49f3b6c82209e51c5a762a8
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Aug 20 01:15:36 2014 +0200
+
+    Allow input from stdin by specifying "-i -".
+
+commit a8b4041ad4829aeb33e243d6a6a0c482be4658cd
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 10 16:58:36 2014 +0200
+
+    Use new input API.
+
+commit f99038b44505c05197da6954d8fcfbbd728c7216
+Author: Peter Zotov <whitequark@whitequark.org>
+Date:   Sun Aug 24 13:24:02 2014 +0400
+
+    Trigger match on any edge is e, not c.
+
+commit ac3dcd3e26b7657e3ae16a95c03d6d2a43a28e54
+Author: Peter Zotov <whitequark@whitequark.org>
+Date:   Sat Aug 23 13:02:50 2014 +0400
+
+    If only one non-demo device is present, select it.
+
+commit 87e24fedeb35cb7d5b1c593150ac1a92cf10cf4d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Aug 20 17:31:17 2014 +0200
+
+    Fix generic sr_option enumeration.
+
+commit 7c6a0420448760fc138cbe38579a5c9e0a46132c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Aug 18 23:59:23 2014 +0200
+
+    Fix output module enumeration + code cleanup.
+
+commit b61a8850b1396aecb59da1ff51f1c874b1cce01f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Aug 15 22:32:17 2014 +0200
+
+    Enumerate output module options according to API change.
+
+commit e786e625d3e3b63ea5e85b98c9e1f0281abdc2d5
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 3 01:19:55 2014 +0200
+
+    Better output module checking.
+
+commit a30daa0376eab28fb655a3a5a3d6716426877b77
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Aug 2 03:43:53 2014 +0200
+
+    Handle floating point options for output modules.
+
+commit 3d7bf9792393c39ba8bbb3ad51d0a2e59dfb20ba
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Aug 1 16:04:08 2014 +0200
+
+    Show PD annotation row members by name, not number.
+    
+    This fixes bug 388.
+
+commit d26a362ef5ffe2f2ff2c0a4668925d554e378787
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jul 27 23:33:37 2014 +0200
+
+    Remove stray debug output.
+
+commit ad6520c433602a426e4e55fec2d5aef8fe11a5b5
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jul 25 22:39:48 2014 +0200
+
+    Use finished output API.
+
+commit b4eece7c5f666690fdbe1923cd3bdc7cf9425d98
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jul 24 20:31:55 2014 +0200
+
+    Free results of device scan as soon as possible.
+
+commit 9216694f9278c653c2567074d3d0546d62390ca3
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jul 24 04:28:26 2014 +0200
+
+    Add analog output module to default output.
+    
+    The default output module is bits, which only handles logic data.
+    When a user queries a device which outputs analog data, this results
+    in no output at all, which often confuses new users.
+
+commit 64c74f2561987c152e3ee3dbf06e20056868ff84
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Jul 23 19:21:54 2014 +0200
+
+    Properly handle saving logic data packets of any size.
+
+commit 7f1cb96e2f9bc674df26d4d47320c6736864a31e
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Jul 23 00:02:30 2014 +0200
+
+    Drop references to obsolete sigrok-commits mailing list.
+
+commit 4bf77ec67e693aa08f5b72b71fff9943df8a65e7
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jul 17 22:49:20 2014 +0200
+
+    Use new session API.
+
+commit 41ce2cbb8ff6253bc1a223298ad93f75dfabcceb
+Author: Jens Steinhauser <jens.steinhauser@gmail.com>
+Date:   Tue Jul 15 23:40:20 2014 +0200
+
+    options: Make sure there are no extra arguments.
+
+commit 44ac76145c74a503916ffc9a29701b3226d8c0c6
+Author: Jens Steinhauser <jens.steinhauser@gmail.com>
+Date:   Tue Jul 15 23:31:34 2014 +0200
+
+    options: Allow input/output file names only once.
+
+commit 0894b97269117fef77fb22d06d726a38e652cee4
+Author: Jens Steinhauser <jens.steinhauser@gmail.com>
+Date:   Tue Jul 15 22:52:35 2014 +0200
+
+    options: String options are only allowed once.
+
+commit 7a638873128dedfcad1e77d87c3d2c25516abaf2
+Author: Jens Steinhauser <jens.steinhauser@gmail.com>
+Date:   Tue Jul 15 17:19:55 2014 +0200
+
+    Remove unnecessary extern option variable declarations.
+
+commit cd62e027c0a3a8d97a6689d042b92699d8b619f3
+Author: Jens Steinhauser <jens.steinhauser@gmail.com>
+Date:   Tue Jul 15 17:14:03 2014 +0200
+
+    Put option parsing into a separate file.
+
+commit 142b54581d3c819b629ecd2c2dce69dfc4297d30
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jul 10 01:53:17 2014 +0200
+
+    Add some missing headers.
+
+commit b0f1c54057614508b8702ea2565ec4758019030d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 10 14:00:32 2013 +0100
+
+    manpage: Document -M and -B options.
+
+commit 3a8ceb6ab20eda808a31d0d5e81483ced0ab18bf
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jun 20 17:01:48 2014 +0200
+
+    Check srd_decoder_get_by_id() output.
+    
+    This fixes bug 370. Thanks to Sander Alberink for the bug report
+    and patch.
+
+commit 50c641aab7c4400393b7d2ab6be9267e3fa1eac7
+Author: Aurelien Jacobs <aurel@gnuage.org>
+Date:   Tue Jun 3 16:46:03 2014 +0200
+
+    fix a potential use of uninitialized variable
+    
+    show.c: In function ‘show_dev_detail’:
+    show.c:214:11: warning: ‘c’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+      char *s, c;
+               ^
+
+commit f9170968a3ebd9a7109312052ad0b9fb805b5090
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat May 31 10:36:15 2014 +0200
+
+    Use sr_trigger_stage_add().
+
+commit 6b27bde46ccb02784a327b51b3e7beeb2f9c681a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon May 26 00:58:42 2014 +0200
+
+    Use new trigger API.
+
+commit 20d461e880e824b722c17d1c7dec2f8fa93f3c00
+Author: Cody P Schafer <dev@codyps.com>
+Date:   Tue May 6 21:18:38 2014 -0700
+
+    sigrok-cli: AC_ARG_WITH uses withval, not enableval
+    
+    Signed-off-by: Cody P Schafer <dev@codyps.com>
+
 commit 23215c5a9718f6d948597b44aae5f3f2839d445a
 Author: Uwe Hermann <uwe@hermann-uwe.de>
 Date:   Tue May 6 23:19:15 2014 +0200

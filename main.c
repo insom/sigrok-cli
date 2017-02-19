@@ -17,95 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "sigrok-cli.h"
+#include <config.h>
 #include <stdlib.h>
 #include <glib.h>
+#include "sigrok-cli.h"
 
 struct sr_context *sr_ctx = NULL;
 #ifdef HAVE_SRD
 struct srd_session *srd_sess = NULL;
 #endif
-
-static gboolean opt_version = FALSE;
-gint opt_loglevel = SR_LOG_WARN; /* Show errors+warnings by default. */
-static gboolean opt_scan_devs = FALSE;
-gboolean opt_wait_trigger = FALSE;
-gchar *opt_input_file = NULL;
-gchar *opt_output_file = NULL;
-gchar *opt_drv = NULL;
-gchar *opt_config = NULL;
-static gchar *opt_channels = NULL;
-gchar *opt_channel_group = NULL;
-gchar *opt_triggers = NULL;
-gchar *opt_pds = NULL;
-#ifdef HAVE_SRD
-static gchar *opt_pd_stack = NULL;
-static gchar *opt_pd_annotations = NULL;
-static gchar *opt_pd_meta = NULL;
-static gchar *opt_pd_binary = NULL;
-#endif
-gchar *opt_input_format = NULL;
-gchar *opt_output_format = NULL;
-static gchar *opt_show = NULL;
-gchar *opt_time = NULL;
-gchar *opt_samples = NULL;
-gchar *opt_frames = NULL;
-gchar *opt_continuous = NULL;
-static gchar *opt_set = NULL;
-
-static GOptionEntry optargs[] = {
-	{"version", 'V', 0, G_OPTION_ARG_NONE, &opt_version,
-			"Show version and support list", NULL},
-	{"loglevel", 'l', 0, G_OPTION_ARG_INT, &opt_loglevel,
-			"Set loglevel (5 is most verbose)", NULL},
-	{"driver", 'd', 0, G_OPTION_ARG_STRING, &opt_drv,
-			"The driver to use", NULL},
-	{"config", 'c', 0, G_OPTION_ARG_STRING, &opt_config,
-			"Specify device configuration options", NULL},
-	{"input-file", 'i', 0, G_OPTION_ARG_FILENAME, &opt_input_file,
-			"Load input from file", NULL},
-	{"input-format", 'I', 0, G_OPTION_ARG_STRING, &opt_input_format,
-			"Input format", NULL},
-	{"output-file", 'o', 0, G_OPTION_ARG_FILENAME, &opt_output_file,
-			"Save output to file", NULL},
-	{"output-format", 'O', 0, G_OPTION_ARG_STRING, &opt_output_format,
-			"Output format", NULL},
-	{"channels", 'C', 0, G_OPTION_ARG_STRING, &opt_channels,
-			"Channels to use", NULL},
-	{"channel-group", 'g', 0, G_OPTION_ARG_STRING, &opt_channel_group,
-			"Channel groups", NULL},
-	{"triggers", 't', 0, G_OPTION_ARG_STRING, &opt_triggers,
-			"Trigger configuration", NULL},
-	{"wait-trigger", 'w', 0, G_OPTION_ARG_NONE, &opt_wait_trigger,
-			"Wait for trigger", NULL},
-#ifdef HAVE_SRD
-	{"protocol-decoders", 'P', 0, G_OPTION_ARG_STRING, &opt_pds,
-			"Protocol decoders to run", NULL},
-	{"protocol-decoder-stack", 'S', 0, G_OPTION_ARG_STRING, &opt_pd_stack,
-			"Protocol decoder stack", NULL},
-	{"protocol-decoder-annotations", 'A', 0, G_OPTION_ARG_STRING, &opt_pd_annotations,
-			"Protocol decoder annotation(s) to show", NULL},
-	{"protocol-decoder-meta", 'M', 0, G_OPTION_ARG_STRING, &opt_pd_meta,
-			"Protocol decoder meta output to show", NULL},
-	{"protocol-decoder-binary", 'B', 0, G_OPTION_ARG_STRING, &opt_pd_binary,
-			"Protocol decoder binary output to show", NULL},
-#endif
-	{"scan", 0, 0, G_OPTION_ARG_NONE, &opt_scan_devs,
-			"Scan for devices", NULL},
-	{"show", 0, 0, G_OPTION_ARG_NONE, &opt_show,
-			"Show device detail", NULL},
-	{"time", 0, 0, G_OPTION_ARG_STRING, &opt_time,
-			"How long to sample (ms)", NULL},
-	{"samples", 0, 0, G_OPTION_ARG_STRING, &opt_samples,
-			"Number of samples to acquire", NULL},
-	{"frames", 0, 0, G_OPTION_ARG_STRING, &opt_frames,
-			"Number of frames to acquire", NULL},
-	{"continuous", 0, 0, G_OPTION_ARG_NONE, &opt_continuous,
-			"Sample continuously", NULL},
-	{"set", 0, 0, G_OPTION_ARG_NONE, &opt_set, "Set device options only", NULL},
-	{NULL, 0, 0, 0, NULL, NULL, NULL}
-};
-
 
 static void logger(const gchar *log_domain, GLogLevelFlags log_level,
 		   const gchar *message, gpointer cb_data)
@@ -131,18 +51,20 @@ static void logger(const gchar *log_domain, GLogLevelFlags log_level,
 int select_channels(struct sr_dev_inst *sdi)
 {
 	struct sr_channel *ch;
-	GSList *selected_channels, *l;
+	gboolean enabled;
+	GSList *selected_channels, *l, *channels;
+
+	channels = sr_dev_inst_channels_get(sdi);
 
 	if (opt_channels) {
 		if (!(selected_channels = parse_channelstring(sdi, opt_channels)))
 			return SR_ERR;
 
-		for (l = sdi->channels; l; l = l->next) {
+		for (l = channels; l; l = l->next) {
 			ch = l->data;
-			if (g_slist_find(selected_channels, ch))
-				ch->enabled = TRUE;
-			else
-				ch->enabled = FALSE;
+			enabled = (g_slist_find(selected_channels, ch) != NULL);
+			if (sr_dev_channel_enable(ch, enabled) != SR_OK)
+				return SR_ERR;
 		}
 		g_slist_free(selected_channels);
 	}
@@ -150,6 +72,84 @@ int select_channels(struct sr_dev_inst *sdi)
 	map_pd_channels(sdi);
 #endif
 	return SR_OK;
+}
+
+int maybe_config_get(struct sr_dev_driver *driver,
+		const struct sr_dev_inst *sdi, struct sr_channel_group *cg,
+		uint32_t key, GVariant **gvar)
+{
+	if (sr_dev_config_capabilities_list(sdi, cg, key) & SR_CONF_GET)
+		return sr_config_get(driver, sdi, cg, key, gvar);
+
+	return SR_ERR_NA;
+}
+
+int maybe_config_set(struct sr_dev_driver *driver,
+		const struct sr_dev_inst *sdi, struct sr_channel_group *cg,
+		uint32_t key, GVariant *gvar)
+{
+	(void)driver;
+
+	if (sr_dev_config_capabilities_list(sdi, cg, key) & SR_CONF_SET)
+		return sr_config_set(sdi, cg, key, gvar);
+
+	return SR_ERR_NA;
+}
+
+int maybe_config_list(struct sr_dev_driver *driver,
+		const struct sr_dev_inst *sdi, struct sr_channel_group *cg,
+		uint32_t key, GVariant **gvar)
+{
+	if (sr_dev_config_capabilities_list(sdi, cg, key) & SR_CONF_LIST)
+		return sr_config_list(driver, sdi, cg, key, gvar);
+
+	return SR_ERR_NA;
+}
+
+static void get_option(void)
+{
+	struct sr_dev_inst *sdi;
+	struct sr_channel_group *cg;
+	const struct sr_key_info *ci;
+	GSList *devices;
+	GVariant *gvar;
+	GHashTable *devargs;
+	int ret;
+	char *s;
+	struct sr_dev_driver *driver;
+
+	if (!(devices = device_scan())) {
+		g_critical("No devices found.");
+		return;
+	}
+	sdi = devices->data;
+	g_slist_free(devices);
+
+	driver = sr_dev_inst_driver_get(sdi);
+
+	if (sr_dev_open(sdi) != SR_OK) {
+		g_critical("Failed to open device.");
+		return;
+	}
+
+	cg = select_channel_group(sdi);
+	if (!(ci = sr_key_info_name_get(SR_KEY_CONFIG, opt_get)))
+		g_critical("Unknown option '%s'", opt_get);
+
+	if ((devargs = parse_generic_arg(opt_config, FALSE)))
+		set_dev_options(sdi, devargs);
+	else devargs = NULL;
+
+	if ((ret = maybe_config_get(driver, sdi, cg, ci->key, &gvar)) != SR_OK)
+		g_critical("Failed to get '%s': %s", opt_get, sr_strerror(ret));
+	s = g_variant_print(gvar, FALSE);
+	printf("%s\n", s);
+	g_free(s);
+
+	g_variant_unref(gvar);
+	sr_dev_close(sdi);
+	if (devargs)
+		g_hash_table_destroy(devargs);
 }
 
 static void set_options(void)
@@ -171,6 +171,7 @@ static void set_options(void)
 		return;
 	}
 	sdi = devices->data;
+	g_slist_free(devices);
 
 	if (sr_dev_open(sdi) != SR_OK) {
 		g_critical("Failed to open device.");
@@ -180,28 +181,16 @@ static void set_options(void)
 	set_dev_options(sdi, devargs);
 
 	sr_dev_close(sdi);
-	g_slist_free(devices);
 	g_hash_table_destroy(devargs);
 
 }
 
 int main(int argc, char **argv)
 {
-	GOptionContext *context;
-	GError *error;
-	int ret;
-	char *help;
-
 	g_log_set_default_handler(logger, NULL);
 
-	context = g_option_context_new(NULL);
-	g_option_context_add_main_entries(context, optargs, NULL);
-
-	ret = 1;
-	error = NULL;
-	if (!g_option_context_parse(context, &argc, &argv, &error)) {
-		g_critical("%s", error->message);
-		goto done;
+	if (parse_options(argc, argv)) {
+		return 1;
 	}
 
 	/* Set the loglevel (amount of messages to output) for libsigrok. */
@@ -254,6 +243,12 @@ int main(int argc, char **argv)
 
 	if (opt_version)
 		show_version();
+	else if (opt_input_format && opt_show)
+		show_input();
+	else if (opt_output_format && opt_show)
+		show_output();
+	else if (opt_transform_module && opt_show)
+		show_transform();
 	else if (opt_scan_devs)
 		show_dev_list();
 #ifdef HAVE_SRD
@@ -264,28 +259,23 @@ int main(int argc, char **argv)
 		show_dev_detail();
 	else if (opt_input_file)
 		load_input_file();
+	else if (opt_get)
+		get_option();
 	else if (opt_set)
 		set_options();
 	else if (opt_samples || opt_time || opt_frames || opt_continuous)
 		run_session();
-	else {
-		help = g_option_context_get_help(context, TRUE, NULL);
-		printf("%s", help);
-		g_free(help);
-	}
+	else
+		show_help();
 
 #ifdef HAVE_SRD
 	if (opt_pds)
 		srd_exit();
 #endif
 
-	ret = 0;
-
 done:
 	if (sr_ctx)
 		sr_exit(sr_ctx);
 
-	g_option_context_free(context);
-
-	return ret;
+	return 0;
 }

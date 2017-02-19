@@ -17,9 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "sigrok-cli.h"
-#include "config.h"
+#include <config.h>
+#include <stdlib.h>
+#include <string.h>
 #include <glib.h>
+#include "sigrok-cli.h"
 
 #ifdef HAVE_SRD
 static GHashTable *pd_ann_visible = NULL;
@@ -28,8 +30,6 @@ static GHashTable *pd_binary_visible = NULL;
 static GHashTable *pd_channel_maps = NULL;
 
 extern struct srd_session *srd_sess;
-extern gint opt_loglevel;
-
 
 static int opts_to_gvar(struct srd_decoder *dec, GHashTable *hash,
 		GHashTable **options)
@@ -109,7 +109,8 @@ static GHashTable *extract_channel_map(struct srd_decoder *dec, GHashTable *hash
 	return channel_map;
 }
 
-/* Register the given PDs for this session.
+/*
+ * Register the given PDs for this session.
  * Accepts a string of the form: "spi:sck=3:sdata=4,spi:sck=3:sdata=5"
  * That will instantiate two SPI decoders on the clock but different data
  * lines.
@@ -142,7 +143,11 @@ int register_pds(const char *opt_pds, char *opt_pd_annotations)
 			ret = 1;
 			break;
 		}
-		dec = srd_decoder_get_by_id(pd_name);
+		if (!(dec = srd_decoder_get_by_id(pd_name))) {
+			g_critical("Failed to get decoder %s by id.", pd_name);
+			ret = 1;
+			break;
+		}
 
 		/* Convert decoder option and channel values to GVariant. */
 		if (!opts_to_gvar(dec, pd_opthash, &options)) {
@@ -176,7 +181,8 @@ int register_pds(const char *opt_pds, char *opt_pd_annotations)
 			channels = NULL;
 		}
 
-		/* If no annotation list was specified, add them all in now.
+		/*
+		 * If no annotation list was specified, add them all in now.
 		 * This will be pared down later to leave only the last PD
 		 * in the stack.
 		 */
@@ -192,8 +198,7 @@ int register_pds(const char *opt_pds, char *opt_pd_annotations)
 		g_hash_table_destroy(options);
 	if (channels)
 		g_hash_table_destroy(channels);
-	if (pd_name)
-		g_free(pd_name);
+	g_free(pd_name);
 
 	return ret;
 }
@@ -209,7 +214,6 @@ static void map_pd_inst_channels(void *key, void *value, void *user_data)
 	void *channel_target;
 	struct sr_channel *ch;
 	GHashTableIter iter;
-	int num_channels;
 
 	channel_map = value;
 	channel_list = user_data;
@@ -240,15 +244,18 @@ static void map_pd_inst_channels(void *key, void *value, void *user_data)
 		g_hash_table_insert(channel_indices, g_strdup(channel_id), var);
 	}
 
-	num_channels = g_slist_length(channel_list);
-	srd_inst_channel_set_all(di, channel_indices, (num_channels + 7) / 8);
+	srd_inst_channel_set_all(di, channel_indices);
 }
 
 void map_pd_channels(struct sr_dev_inst *sdi)
 {
+	GSList *channels;
+
+	channels = sr_dev_inst_channels_get(sdi);
+
 	if (pd_channel_maps) {
 		g_hash_table_foreach(pd_channel_maps, &map_pd_inst_channels,
-				     sdi->channels);
+				     channels);
 		g_hash_table_destroy(pd_channel_maps);
 		pd_channel_maps = NULL;
 	}
@@ -297,7 +304,8 @@ int setup_pd_stack(char *opt_pds, char *opt_pd_stack, char *opt_pd_annotations)
 			if ((ret = srd_inst_stack(srd_sess, di_from, di_to)) != SRD_OK)
 				return 1;
 
-			/* Don't show annotation from this PD. Only the last PD in
+			/*
+			 * Don't show annotation from this PD. Only the last PD in
 			 * the stack will be left on the annotation list (unless
 			 * the annotation list was specifically provided).
 			 */
@@ -445,7 +453,6 @@ void show_pd_annotations(struct srd_proto_data *pdata, void *cb_data)
 	char **ann_descr;
 	gboolean show;
 
-	/* 'cb_data' is not used in this specific callback. */
 	(void)cb_data;
 
 	if (!pd_ann_visible)
@@ -461,7 +468,7 @@ void show_pd_annotations(struct srd_proto_data *pdata, void *cb_data)
 	show = FALSE;
 	for (l = ann_list; l; l = l->next) {
 		if (GPOINTER_TO_INT(l->data) == -1
-				|| GPOINTER_TO_INT(l->data) == pda->ann_format) {
+				|| GPOINTER_TO_INT(l->data) == pda->ann_class) {
 			show = TRUE;
 			break;
 		}
@@ -480,7 +487,7 @@ void show_pd_annotations(struct srd_proto_data *pdata, void *cb_data)
 		} else {
 			/* Protocol decoder id, annotation class,
 			 * all annotation strings. */
-			ann_descr = g_slist_nth_data(dec->annotations, pda->ann_format);
+			ann_descr = g_slist_nth_data(dec->annotations, pda->ann_class);
 			printf(" %s: %s:", pdata->pdo->proto_id, ann_descr[0]);
 			for (i = 0; pda->ann_text[i]; i++)
 				printf(" \"%s\"", pda->ann_text[i]);
@@ -492,8 +499,6 @@ void show_pd_annotations(struct srd_proto_data *pdata, void *cb_data)
 
 void show_pd_meta(struct srd_proto_data *pdata, void *cb_data)
 {
-
-	/* 'cb_data' is not used in this specific callback. */
 	(void)cb_data;
 
 	if (!g_hash_table_lookup_extended(pd_meta_visible,
@@ -515,7 +520,6 @@ void show_pd_binary(struct srd_proto_data *pdata, void *cb_data)
 	gpointer classp;
 	int class;
 
-	/* 'cb_data' is not used in this specific callback. */
 	(void)cb_data;
 
 	if (!g_hash_table_lookup_extended(pd_binary_visible,
@@ -534,4 +538,3 @@ void show_pd_binary(struct srd_proto_data *pdata, void *cb_data)
 	fflush(stdout);
 }
 #endif
-

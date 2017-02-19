@@ -38,7 +38,7 @@
 Name "@PACKAGE_NAME@"
 
 # Filename of the installer executable.
-OutFile "@PACKAGE_NAME@-@PACKAGE_VERSION@-installer.exe"
+OutFile "@PACKAGE_NAME@-@SC_PACKAGE_VERSION@-installer.exe"
 
 # Where to install the application.
 InstallDir "$PROGRAMFILES\sigrok\@PACKAGE_NAME@"
@@ -54,7 +54,7 @@ RequestExecutionLevel admin
 # --- MUI interface configuration ---------------------------------------------
 
 # Use the following icon for the installer EXE file.
-!define MUI_ICON "sigrok-logo-notext.ico"
+!define MUI_ICON "@top_srcdir@/contrib/sigrok-logo-notext.ico"
 
 # Show a nice image at the top of each installer page.
 !define MUI_HEADERIMAGE
@@ -72,11 +72,7 @@ RequestExecutionLevel admin
 
 # Path where the cross-compiled sigrok tools and libraries are located.
 # Change this to where-ever you installed libsigrok.a and so on.
-!define CROSS "$%HOME%/sr_mingw"
-
-# Path where the cross-compiled MXE tools and libraries are located.
-# Change this to where-ever you installed MXE (and the files it built).
-!define MXE "$%HOME%/mxe-git/usr/i686-pc-mingw32"
+!define CROSS "@prefix@"
 
 
 # --- MUI pages ---------------------------------------------------------------
@@ -85,7 +81,7 @@ RequestExecutionLevel admin
 !insertmacro MUI_PAGE_WELCOME
 
 # Show the license of the project.
-!insertmacro MUI_PAGE_LICENSE "../COPYING"
+!insertmacro MUI_PAGE_LICENSE "@top_srcdir@/COPYING"
 
 # Show a screen which allows the user to select which components to install.
 !insertmacro MUI_PAGE_COMPONENTS
@@ -123,15 +119,12 @@ Section "@PACKAGE_NAME@ (required)" Section1
 	SetOutPath "$INSTDIR"
 
 	# License file.
-	File "../COPYING"
+	File "@top_srcdir@/COPYING"
 
 	# sigrok-cli.exe.
 	File "${CROSS}/bin/@PACKAGE_NAME@.exe"
 
-	# libusb0.dll (needed for libusb-0.1).
-	File "${CROSS}/libusb0.dll"
-
-	# Zadig (used for installing libusb-win32 and WinUSB drivers).
+	# Zadig (used for installing WinUSB drivers).
 	File "${CROSS}/zadig.exe"
 	File "${CROSS}/zadig_xp.exe"
 
@@ -139,13 +132,13 @@ Section "@PACKAGE_NAME@ (required)" Section1
 	File "${CROSS}/python32.dll"
 	File "${CROSS}/python32.zip"
 
+	SetOutPath "$INSTDIR\share"
+
 	# Protocol decoders.
-	SetOutPath "$INSTDIR\decoders"
-	File /r /x "__pycache__" "${CROSS}/share/libsigrokdecode/decoders/*"
+	File /r /x "__pycache__" /x "*.pyc" "${CROSS}/share/libsigrokdecode"
 
 	# Firmware files.
-	SetOutPath "$INSTDIR\firmware"
-	File /r "${CROSS}/share/sigrok-firmware/*"
+	File /r "${CROSS}/share/sigrok-firmware"
 
 	# Example *.sr files.
 	SetOutPath "$INSTDIR\examples"
@@ -173,6 +166,16 @@ Section "@PACKAGE_NAME@ (required)" Section1
 		"$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0 \
 		SW_SHOWNORMAL "" "Uninstall @PACKAGE_NAME@"
 
+	# Create a shortcut for the Zadig executable.
+	CreateShortCut "$SMPROGRAMS\sigrok\@PACKAGE_NAME@\Zadig.lnk" \
+		"$INSTDIR\zadig.exe" "" "$INSTDIR\zadig.exe" 0 \
+		SW_SHOWNORMAL "" "Zadig"
+
+	# Create a shortcut for the Zadig executable (for Win XP).
+	CreateShortCut "$SMPROGRAMS\sigrok\@PACKAGE_NAME@\Zadig (Win XP).lnk" \
+		"$INSTDIR\zadig_xp.exe" "" "$INSTDIR\zadig_xp.exe" 0 \
+		SW_SHOWNORMAL "" "Zadig (Win XP)"
+
 	# Create registry keys for "Add/remove programs" in the control panel.
 	WriteRegStr HKLM "${REGSTR}" "DisplayName" "@PACKAGE_STRING@"
 	WriteRegStr HKLM "${REGSTR}" "UninstallString" \
@@ -186,7 +189,7 @@ Section "@PACKAGE_NAME@ (required)" Section1
 	WriteRegStr HKLM "${REGSTR}" "URLUpdateInfo" \
 		"http://sigrok.org/wiki/Downloads"
 	WriteRegStr HKLM "${REGSTR}" "URLInfoAbout" "http://sigrok.org"
-	WriteRegStr HKLM "${REGSTR}" "DisplayVersion" "@PACKAGE_VERSION@"
+	WriteRegStr HKLM "${REGSTR}" "DisplayVersion" "@SC_PACKAGE_VERSION@"
 	WriteRegStr HKLM "${REGSTR}" "Contact" \
 		"sigrok-devel@lists.sourceforge.org"
 	WriteRegStr HKLM "${REGSTR}" "Comments" \
@@ -211,31 +214,31 @@ Section "Uninstall"
 	# Delete the application, the application data, and related libs.
 	Delete "$INSTDIR\COPYING"
 	Delete "$INSTDIR\@PACKAGE_NAME@.exe"
-	Delete "$INSTDIR\libusb0.dll"
 	Delete "$INSTDIR\zadig.exe"
 	Delete "$INSTDIR\zadig_xp.exe"
 	Delete "$INSTDIR\python32.dll"
 	Delete "$INSTDIR\python32.zip"
 
-	# Delete all decoders and everything else in decoders/.
+	# Delete all decoders and everything else in libsigrokdecode/.
 	# There could be *.pyc files or __pycache__ subdirs and so on.
-	RMDir /r "$INSTDIR\decoders\*"
+	RMDir /r "$INSTDIR\share\libsigrokdecode"
 
 	# Delete the firmware files.
-	RMDir /r "$INSTDIR\firmware\*"
+	RMDir /r "$INSTDIR\share\sigrok-firmware"
 
 	# Delete the example *.sr files.
 	RMDir /r "$INSTDIR\examples\*"
 
 	# Delete the install directory and its sub-directories.
-	RMDir "$INSTDIR\decoders"
-	RMDir "$INSTDIR\firmware"
+	RMDir "$INSTDIR\share"
 	RMDir "$INSTDIR\examples"
 	RMDir "$INSTDIR"
 
 	# Delete the links from the start menu.
 	Delete "$SMPROGRAMS\sigrok\@PACKAGE_NAME@\sigrok command-line tool.lnk"
 	Delete "$SMPROGRAMS\sigrok\@PACKAGE_NAME@\Uninstall.lnk"
+	Delete "$SMPROGRAMS\sigrok\@PACKAGE_NAME@\Zadig.lnk"
+	Delete "$SMPROGRAMS\sigrok\@PACKAGE_NAME@\Zadig (Win XP).lnk"
 
 	# Delete the sub-directory in the start menu.
 	RMDir "$SMPROGRAMS\sigrok\@PACKAGE_NAME@"

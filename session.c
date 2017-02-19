@@ -17,27 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "sigrok-cli.h"
+#include <config.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "sigrok-cli.h"
 
-static struct sr_output_format *output_format = NULL;
-static int default_output_format = FALSE;
 static uint64_t limit_samples = 0;
 static uint64_t limit_frames = 0;
 
-extern gchar *opt_output_file;
-extern gchar *opt_output_format;
-extern gchar *opt_pds;
-extern gboolean opt_wait_trigger;
-extern gchar *opt_time;
-extern gchar *opt_samples;
-extern gchar *opt_frames;
-extern gchar *opt_continuous;
-extern gchar *opt_config;
-extern gchar *opt_triggers;
 #ifdef HAVE_SRD
 extern struct srd_session *srd_sess;
 #endif
@@ -47,21 +36,26 @@ static int set_limit_time(const struct sr_dev_inst *sdi)
 	GVariant *gvar;
 	uint64_t time_msec;
 	uint64_t samplerate;
+	struct sr_dev_driver *driver;
+
+	driver = sr_dev_inst_driver_get(sdi);
 
 	if (!(time_msec = sr_parse_timestring(opt_time))) {
 		g_critical("Invalid time '%s'", opt_time);
 		return SR_ERR;
 	}
 
-	if (sr_dev_has_option(sdi, SR_CONF_LIMIT_MSEC)) {
+	if (sr_dev_config_capabilities_list(sdi, NULL, SR_CONF_LIMIT_MSEC)
+			& SR_CONF_SET) {
 		gvar = g_variant_new_uint64(time_msec);
 		if (sr_config_set(sdi, NULL, SR_CONF_LIMIT_MSEC, gvar) != SR_OK) {
 			g_critical("Failed to configure time limit.");
 			return SR_ERR;
 		}
-	} else if (sr_dev_has_option(sdi, SR_CONF_SAMPLERATE)) {
-		/* Convert to samples based on the samplerate.  */
-		sr_config_get(sdi->driver, sdi, NULL, SR_CONF_SAMPLERATE, &gvar);
+	} else if (sr_dev_config_capabilities_list(sdi, NULL, SR_CONF_SAMPLERATE)
+			& (SR_CONF_GET | SR_CONF_SET)) {
+		/* Convert to samples based on the samplerate. */
+		sr_config_get(driver, sdi, NULL, SR_CONF_SAMPLERATE, &gvar);
 		samplerate = g_variant_get_uint64(gvar);
 		g_variant_unref(gvar);
 		limit_samples = (samplerate) * time_msec / (uint64_t)1000;
@@ -82,47 +76,81 @@ static int set_limit_time(const struct sr_dev_inst *sdi)
 	return SR_OK;
 }
 
-struct sr_output *setup_output_format(const struct sr_dev_inst *sdi)
+const struct sr_output *setup_output_format(const struct sr_dev_inst *sdi, FILE **outfile)
 {
-	GHashTable *fmtargs;
-	struct sr_output *o;
-	struct sr_output_format **outputs;
-	int i;
+	const struct sr_output_module *omod;
+	const struct sr_option **options;
+	const struct sr_output *o;
+	GHashTable *fmtargs, *fmtopts;
 	char *fmtspec;
 
-	if (opt_output_format && !strcmp(opt_output_format, "sigrok")) {
-		/* Doesn't really exist as an output module - this is
-		 * the session save mode. */
-		g_free(opt_output_format);
-		opt_output_format = NULL;
-	}
-
 	if (!opt_output_format) {
-		opt_output_format = DEFAULT_OUTPUT_FORMAT;
-		/* we'll need to remember this so when saving to a file
-		 * later, sigrok session format will be used.
-		 */
-		default_output_format = TRUE;
+		if (opt_output_file) {
+			opt_output_format = DEFAULT_OUTPUT_FORMAT_FILE;
+		} else {
+			opt_output_format = DEFAULT_OUTPUT_FORMAT_NOFILE;
+		}
 	}
 
 	fmtargs = parse_generic_arg(opt_output_format, TRUE);
 	fmtspec = g_hash_table_lookup(fmtargs, "sigrok_key");
 	if (!fmtspec)
 		g_critical("Invalid output format.");
-	outputs = sr_output_list();
-	for (i = 0; outputs[i]; i++) {
-		if (strcmp(outputs[i]->id, fmtspec))
-			continue;
-		g_hash_table_remove(fmtargs, "sigrok_key");
-		output_format = outputs[i];
-		break;
+	if (!(omod = sr_output_find(fmtspec)))
+		g_critical("Unknown output module '%s'.", fmtspec);
+	g_hash_table_remove(fmtargs, "sigrok_key");
+	if ((options = sr_output_options_get(omod))) {
+		fmtopts = generic_arg_to_opt(options, fmtargs);
+		sr_output_options_free(options);
+	} else
+		fmtopts = NULL;
+	o = sr_output_new(omod, fmtopts, sdi, opt_output_file);
+
+	if (opt_output_file) {
+		if (!sr_output_test_flag(omod, SR_OUTPUT_INTERNAL_IO_HANDLING))
+			*outfile = g_fopen(opt_output_file, "wb");
+		else
+			*outfile = NULL;
+	} else {
+		*outfile = stdout;
 	}
-	if (!output_format)
-		g_critical("Invalid output format '%s'.", opt_output_format);
-	o = sr_output_new(output_format, fmtargs, sdi);
+
+	if (fmtopts)
+		g_hash_table_destroy(fmtopts);
 	g_hash_table_destroy(fmtargs);
 
 	return o;
+}
+
+const struct sr_transform *setup_transform_module(const struct sr_dev_inst *sdi)
+{
+	const struct sr_transform_module *tmod;
+	const struct sr_option **options;
+	const struct sr_transform *t;
+	GHashTable *fmtargs, *fmtopts;
+	char *fmtspec;
+
+	if (!opt_transform_module)
+		opt_transform_module = "nop";
+
+	fmtargs = parse_generic_arg(opt_transform_module, TRUE);
+	fmtspec = g_hash_table_lookup(fmtargs, "sigrok_key");
+	if (!fmtspec)
+		g_critical("Invalid transform module.");
+	if (!(tmod = sr_transform_find(fmtspec)))
+		g_critical("Unknown transform module '%s'.", fmtspec);
+	g_hash_table_remove(fmtargs, "sigrok_key");
+	if ((options = sr_transform_options_get(tmod))) {
+		fmtopts = generic_arg_to_opt(options, fmtargs);
+		sr_transform_options_free(options);
+	} else
+		fmtopts = NULL;
+	t = sr_transform_new(tmod, fmtopts, sdi);
+	if (fmtopts)
+		g_hash_table_destroy(fmtopts);
+	g_hash_table_destroy(fmtargs);
+
+	return t;
 }
 
 void datafeed_in(const struct sr_dev_inst *sdi,
@@ -131,9 +159,10 @@ void datafeed_in(const struct sr_dev_inst *sdi,
 	const struct sr_datafeed_meta *meta;
 	const struct sr_datafeed_logic *logic;
 	const struct sr_datafeed_analog *analog;
+	struct sr_session *session;
 	struct sr_config *src;
-	struct sr_channel *ch;
-	static struct sr_output *o = NULL;
+	static const struct sr_output *o = NULL;
+	static const struct sr_output *oa = NULL;
 	static uint64_t rcvd_samples_logic = 0;
 	static uint64_t rcvd_samples_analog = 0;
 	static uint64_t samplerate = 0;
@@ -144,34 +173,27 @@ void datafeed_in(const struct sr_dev_inst *sdi,
 	GVariant *gvar;
 	uint64_t end_sample;
 	uint64_t input_len;
-	int i;
-	char **channels;
+	struct sr_dev_driver *driver;
 
-	(void) cb_data;
+	driver = sr_dev_inst_driver_get(sdi);
 
 	/* If the first packet to come in isn't a header, don't even try. */
-	if (packet->type != SR_DF_HEADER && o == NULL)
+	if (packet->type != SR_DF_HEADER && !o)
 		return;
 
+	session = cb_data;
 	switch (packet->type) {
 	case SR_DF_HEADER:
 		g_debug("cli: Received SR_DF_HEADER.");
-		o = setup_output_format(sdi);
+		if (!(o = setup_output_format(sdi, &outfile)))
+			g_critical("Failed to initialize output module.");
 
-		/* Prepare non-stdout output. */
-		outfile = stdout;
-		if (opt_output_file) {
-			if (default_output_format) {
-				outfile = NULL;
-			} else {
-				/* saving to a file in whatever format was set
-				 * with --format, so all we need is a filehandle */
-				outfile = g_fopen(opt_output_file, "wb");
-			}
-		}
+		/* Set up backup analog output module. */
+		oa = sr_output_new(sr_output_find("analog"), NULL, sdi, NULL);
+
 		rcvd_samples_logic = rcvd_samples_analog = 0;
 
-		if (sr_config_get(sdi->driver, sdi, NULL, SR_CONF_SAMPLERATE,
+		if (maybe_config_get(driver, sdi, NULL, SR_CONF_SAMPLERATE,
 				&gvar) == SR_OK) {
 			samplerate = g_variant_get_uint64(gvar);
 			g_variant_unref(gvar);
@@ -248,30 +270,12 @@ void datafeed_in(const struct sr_dev_inst *sdi,
 			end_sample = limit_samples;
 		input_len = (end_sample - rcvd_samples_logic) * logic->unitsize;
 
-		if (opt_output_file && default_output_format) {
-			/* Saving to a session file. */
-			if (rcvd_samples_logic == 0) {
-				/* First packet with logic data, init session file. */
-				channels = g_malloc(sizeof(char *) * g_slist_length(sdi->channels));
-				for (i = 0, l = sdi->channels; l; l = l->next) {
-					ch = l->data;
-					if (ch->enabled && ch->type == SR_CHANNEL_LOGIC)
-						channels[i++] = ch->name;
-				}
-				channels[i] = NULL;
-				sr_session_save_init(opt_output_file, samplerate,
-						channels);
-				g_free(channels);
-			}
-			save_chunk_logic(logic->data, input_len, logic->unitsize);
-		} else {
-			if (opt_pds) {
+		if (opt_pds) {
 #ifdef HAVE_SRD
-				if (srd_session_send(srd_sess, rcvd_samples_logic, end_sample,
-						logic->data, input_len) != SRD_OK)
-					sr_session_stop();
+			if (srd_session_send(srd_sess, rcvd_samples_logic, end_sample,
+					logic->data, input_len, logic->unitsize) != SRD_OK)
+				sr_session_stop(session);
 #endif
-			}
 		}
 
 		rcvd_samples_logic = end_sample;
@@ -301,16 +305,30 @@ void datafeed_in(const struct sr_dev_inst *sdi,
 		break;
 	}
 
-	if (o && outfile && !opt_pds) {
-		if (sr_output_send(o, packet, &out) == SR_OK && out) {
-			fwrite(out->str, 1, out->len, outfile);
-			fflush(outfile);
-			g_string_free(out, TRUE);
+	if (o && !opt_pds) {
+		if (sr_output_send(o, packet, &out) == SR_OK) {
+			if (!out || (out->len == 0
+					&& !opt_output_format
+					&& packet->type == SR_DF_ANALOG)) {
+				/*
+				 * The user didn't specify an output module,
+				 * but needs to see this analog data.
+				 */
+				sr_output_send(oa, packet, &out);
+			}
+			if (outfile && out && out->len > 0) {
+				fwrite(out->str, 1, out->len, outfile);
+				fflush(outfile);
+			}
+			if (out)
+				g_string_free(out, TRUE);
 		}
 	}
 
-	/* SR_DF_END needs to be handled after the output module's receive()
-	 * is called, so it can properly clean up that module. */
+	/*
+	 * SR_DF_END needs to be handled after the output module's receive()
+	 * is called, so it can properly clean up that module.
+	 */
 	if (packet->type == SR_DF_END) {
 		g_debug("cli: Received SR_DF_END.");
 
@@ -318,12 +336,11 @@ void datafeed_in(const struct sr_dev_inst *sdi,
 			sr_output_free(o);
 		o = NULL;
 
+		sr_output_free(oa);
+		oa = NULL;
+
 		if (outfile && outfile != stdout)
 			fclose(outfile);
-
-		if (opt_output_file && default_output_format)
-			/* Flush whatever is left out to the session file. */
-			save_chunk_logic(NULL, 0, 0);
 
 		if (limit_samples) {
 			if (rcvd_samples_logic > 0 && rcvd_samples_logic < limit_samples)
@@ -339,20 +356,23 @@ void datafeed_in(const struct sr_dev_inst *sdi,
 
 int opt_to_gvar(char *key, char *value, struct sr_config *src)
 {
-	const struct sr_config_info *srci;
+	const struct sr_key_info *srci, *srmqi;
 	double tmp_double, dlow, dhigh;
-	uint64_t tmp_u64, p, q, low, high;
-	GVariant *rational[2], *range[2];
+	uint64_t tmp_u64, p, q, low, high, mqflags;
+	uint32_t mq;
+	GVariant *rational[2], *range[2], *gtup[2];
+	GVariantBuilder *vbl;
 	gboolean tmp_bool;
-	int ret;
+	gchar **keyval;
+	int ret, i;
 
-	if (!(srci = sr_config_info_name_get(key))) {
+	if (!(srci = sr_key_info_name_get(SR_KEY_CONFIG, key))) {
 		g_critical("Unknown device option '%s'.", (char *) key);
 		return -1;
 	}
 	src->key = srci->key;
 
-	if ((value == NULL) &&
+	if ((!value || strlen(value) == 0) &&
 		(srci->datatype != SR_T_BOOL)) {
 		g_critical("Option '%s' needs a value.", (char *)key);
 		return -1;
@@ -420,9 +440,56 @@ int opt_to_gvar(char *key, char *value, struct sr_config *src)
 			src->data = g_variant_new_tuple(range, 2);
 		}
 		break;
+	case SR_T_KEYVALUE:
+		/* Expects the argument to be in the form of key=value. */
+		keyval = g_strsplit(value, "=", 2);
+		if (!keyval[0] || !keyval[1]) {
+			g_strfreev(keyval);
+			ret = -1;
+			break;
+		} else {
+			vbl = g_variant_builder_new(G_VARIANT_TYPE_DICTIONARY);
+			g_variant_builder_add(vbl, "{ss}",
+					      keyval[0], keyval[1]);
+			src->data = g_variant_builder_end(vbl);
+			g_strfreev(keyval);
+		}
+		break;
+	case SR_T_MQ:
+		/*
+		  Argument is MQ id e.g. ("voltage") optionally followed by one
+		  or more /<mqflag> e.g. "/ac".
+		 */
+		keyval = g_strsplit(value, "/", 0);
+		if (!keyval[0] || !(srmqi = sr_key_info_name_get(SR_KEY_MQ, keyval[0]))) {
+			g_strfreev(keyval);
+			ret = -1;
+			break;
+		}
+		mq = srmqi->key;
+		mqflags = 0;
+		for (i = 1; keyval[i]; i++) {
+			if (!(srmqi = sr_key_info_name_get(SR_KEY_MQFLAGS, keyval[i]))) {
+				ret = -1;
+				break;
+			}
+			mqflags |= srmqi->key;
+		}
+		g_strfreev(keyval);
+		if (ret != -1) {
+			gtup[0] = g_variant_new_uint32(mq);
+			gtup[1] = g_variant_new_uint64(mqflags);
+			src->data = g_variant_new_tuple(gtup, 2);
+		}
+		break;
 	default:
+		g_critical("Unknown data type specified for option '%s' "
+			   "(driver implementation bug?).", key);
 		ret = -1;
 	}
+
+	if (ret < 0)
+		g_critical("Invalid value: '%s' for option '%s'", value, key);
 
 	return ret;
 }
@@ -440,9 +507,10 @@ int set_dev_options(struct sr_dev_inst *sdi, GHashTable *args)
 		if ((ret = opt_to_gvar(key, value, &src)) != 0)
 			return ret;
 		cg = select_channel_group(sdi);
-		ret = sr_config_set(sdi, cg, src.key, src.data);
-		if (ret != SR_OK) {
-			g_critical("Failed to set device option '%s'.", (char *)key);
+		if ((ret = maybe_config_set(sr_dev_inst_driver_get(sdi), sdi, cg,
+				src.key, src.data)) != SR_OK) {
+			g_critical("Failed to set device option '%s': %s.",
+				   (char *)key, sr_strerror(ret));
 			return ret;
 		}
 	}
@@ -452,36 +520,76 @@ int set_dev_options(struct sr_dev_inst *sdi, GHashTable *args)
 
 void run_session(void)
 {
-	GSList *devices;
+	GSList *devices, *real_devices, *sd;
 	GHashTable *devargs;
 	GVariant *gvar;
+	struct sr_session *session;
+	struct sr_trigger *trigger;
 	struct sr_dev_inst *sdi;
 	uint64_t min_samples, max_samples;
-	int max_channels, i;
-	char **triggerlist;
+	GArray *dev_opts;
+	guint i;
+	int is_demo_dev;
+	struct sr_dev_driver *driver;
+	const struct sr_transform *t;
+	GMainLoop *main_loop;
 
 	devices = device_scan();
 	if (!devices) {
 		g_critical("No devices found.");
 		return;
 	}
-	if (g_slist_length(devices) > 1) {
-		g_critical("sigrok-cli only supports one device for capturing.");
-		return;
-	}
-	sdi = devices->data;
 
-	sr_session_new();
-	sr_session_datafeed_callback_add(datafeed_in, NULL);
+	real_devices = NULL;
+	for (sd = devices; sd; sd = sd->next) {
+		sdi = sd->data;
+
+		driver = sr_dev_inst_driver_get(sdi);
+
+		if (!(dev_opts = sr_dev_options(driver, sdi, NULL))) {
+			g_critical("Failed to query list device options.");
+			return;
+		}
+
+		is_demo_dev = 0;
+		for (i = 0; i < dev_opts->len; i++) {
+			if (g_array_index(dev_opts, uint32_t, i) == SR_CONF_DEMO_DEV)
+				is_demo_dev = 1;
+		}
+
+		g_array_free(dev_opts, TRUE);
+
+		if (!is_demo_dev)
+			real_devices = g_slist_append(real_devices, sdi);
+	}
+
+	if (g_slist_length(devices) > 1) {
+		if (g_slist_length(real_devices) != 1) {
+			g_critical("sigrok-cli only supports one device for capturing.");
+			return;
+		} else {
+			/* We only have one non-demo device. */
+			g_slist_free(devices);
+			devices = real_devices;
+			real_devices = NULL;
+		}
+	}
+
+	sdi = devices->data;
+	g_slist_free(devices);
+	g_slist_free(real_devices);
+
+	sr_session_new(sr_ctx, &session);
+	sr_session_datafeed_callback_add(session, datafeed_in, NULL);
 
 	if (sr_dev_open(sdi) != SR_OK) {
 		g_critical("Failed to open device.");
 		return;
 	}
 
-	if (sr_session_dev_add(sdi) != SR_OK) {
+	if (sr_session_dev_add(session, sdi) != SR_OK) {
 		g_critical("Failed to add device to session.");
-		sr_session_destroy();
+		sr_session_destroy(session);
 		return;
 	}
 
@@ -495,36 +603,33 @@ void run_session(void)
 
 	if (select_channels(sdi) != SR_OK) {
 		g_critical("Failed to set channels.");
-		sr_session_destroy();
+		sr_session_destroy(session);
 		return;
 	}
 
+	trigger = NULL;
 	if (opt_triggers) {
-		if (!(triggerlist = sr_parse_triggerstring(sdi, opt_triggers))) {
-			sr_session_destroy();
+		if (!parse_triggerstring(sdi, opt_triggers, &trigger)) {
+			sr_session_destroy(session);
 			return;
 		}
-		max_channels = g_slist_length(sdi->channels);
-		for (i = 0; i < max_channels; i++) {
-			if (triggerlist[i]) {
-				sr_dev_trigger_set(sdi, i, triggerlist[i]);
-				g_free(triggerlist[i]);
-			}
+		if (sr_session_trigger_set(session, trigger) != SR_OK) {
+			sr_session_destroy(session);
+			return;
 		}
-		g_free(triggerlist);
 	}
 
 	if (opt_continuous) {
 		if (!sr_dev_has_option(sdi, SR_CONF_CONTINUOUS)) {
 			g_critical("This device does not support continuous sampling.");
-			sr_session_destroy();
+			sr_session_destroy(session);
 			return;
 		}
 	}
 
 	if (opt_time) {
 		if (set_limit_time(sdi) != SR_OK) {
-			sr_session_destroy();
+			sr_session_destroy(session);
 			return;
 		}
 	}
@@ -532,13 +637,15 @@ void run_session(void)
 	if (opt_samples) {
 		if ((sr_parse_sizestring(opt_samples, &limit_samples) != SR_OK)) {
 			g_critical("Invalid sample limit '%s'.", opt_samples);
-			sr_session_destroy();
+			sr_session_destroy(session);
 			return;
 		}
-		if (sr_config_list(sdi->driver, sdi, NULL,
-				SR_CONF_LIMIT_SAMPLES, &gvar) == SR_OK) {
-			/* The device has no compression, or compression is turned
-			 * off, and publishes its sample memory size. */
+		if (maybe_config_list(driver, sdi, NULL, SR_CONF_LIMIT_SAMPLES,
+				&gvar) == SR_OK) {
+			/*
+			 * The device has no compression, or compression is turned
+			 * off, and publishes its sample memory size.
+			 */
 			g_variant_get(gvar, "(tt)", &min_samples, &max_samples);
 			g_variant_unref(gvar);
 			if (limit_samples < min_samples) {
@@ -551,9 +658,9 @@ void run_session(void)
 			}
 		}
 		gvar = g_variant_new_uint64(limit_samples);
-		if (sr_config_set(sdi, NULL, SR_CONF_LIMIT_SAMPLES, gvar) != SR_OK) {
+		if (maybe_config_set(sr_dev_inst_driver_get(sdi), sdi, NULL, SR_CONF_LIMIT_SAMPLES, gvar) != SR_OK) {
 			g_critical("Failed to configure sample limit.");
-			sr_session_destroy();
+			sr_session_destroy(session);
 			return;
 		}
 	}
@@ -561,63 +668,44 @@ void run_session(void)
 	if (opt_frames) {
 		if ((sr_parse_sizestring(opt_frames, &limit_frames) != SR_OK)) {
 			g_critical("Invalid sample limit '%s'.", opt_samples);
-			sr_session_destroy();
+			sr_session_destroy(session);
 			return;
 		}
 		gvar = g_variant_new_uint64(limit_frames);
-		if (sr_config_set(sdi, NULL, SR_CONF_LIMIT_FRAMES, gvar) != SR_OK) {
+		if (maybe_config_set(sr_dev_inst_driver_get(sdi), sdi, NULL, SR_CONF_LIMIT_FRAMES, gvar) != SR_OK) {
 			g_critical("Failed to configure frame limit.");
-			sr_session_destroy();
+			sr_session_destroy(session);
 			return;
 		}
 	}
 
-	if (sr_session_start() != SR_OK) {
+	if (!(t = setup_transform_module(sdi)))
+		g_critical("Failed to initialize transform module.");
+
+	main_loop = g_main_loop_new(NULL, FALSE);
+
+	sr_session_stopped_callback_set(session,
+		(sr_session_stopped_callback)g_main_loop_quit, main_loop);
+
+	if (sr_session_start(session) != SR_OK) {
 		g_critical("Failed to start session.");
-		sr_session_destroy();
+		g_main_loop_unref(main_loop);
+		sr_session_destroy(session);
 		return;
 	}
 
 	if (opt_continuous)
-		add_anykey();
+		add_anykey(session);
 
-	sr_session_run();
+	g_main_loop_run(main_loop);
 
 	if (opt_continuous)
 		clear_anykey();
 
-	sr_session_datafeed_callback_remove_all();
-	sr_session_destroy();
-	g_slist_free(devices);
+	if (trigger)
+		sr_trigger_free(trigger);
 
-}
-
-void save_chunk_logic(uint8_t *data, uint64_t data_len, int unitsize)
-{
-	static uint8_t *buf = NULL;
-	static int buf_len = 0;
-	static int last_unitsize = 0;
-	int max;
-
-	if (!buf)
-		buf = g_malloc(SAVE_CHUNK_SIZE);
-
-	if (buf_len + data_len > SAVE_CHUNK_SIZE) {
-		max = (SAVE_CHUNK_SIZE - buf_len) / unitsize * unitsize;
-		memcpy(buf + buf_len, data, max);
-		sr_session_append(opt_output_file, buf, unitsize,
-				(buf_len + max) / unitsize);
-		memcpy(buf, data + max, data_len - max);
-		buf_len = data_len - max;
-	} else if (data_len == 0 && last_unitsize != 0) {
-		/* End of data, flush the buffer out. */
-		sr_session_append(opt_output_file, buf, last_unitsize,
-				buf_len / last_unitsize);
-	} else {
-		/* Buffer chunk. */
-		memcpy(buf + buf_len, data, data_len);
-		buf_len += data_len;
-	}
-	last_unitsize = unitsize;
-
+	sr_session_datafeed_callback_remove_all(session);
+	g_main_loop_unref(main_loop);
+	sr_session_destroy(session);
 }

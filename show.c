@@ -17,25 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "sigrok-cli.h"
+#include <config.h>
 #include <glib.h>
 #include <string.h>
-
-extern gint opt_loglevel;
-extern gchar *opt_pds;
+#include "sigrok-cli.h"
 
 static gint sort_inputs(gconstpointer a, gconstpointer b)
 {
-	const struct sr_input_format *ia = a, *ib = b;
-
-	return strcmp(ia->id, ib->id);
+	return strcmp(sr_input_id_get((struct sr_input_module *)a),
+			sr_input_id_get((struct sr_input_module *)b));
 }
 
 static gint sort_outputs(gconstpointer a, gconstpointer b)
 {
-	const struct sr_output_format *oa = a, *ob = b;
+	return strcmp(sr_output_id_get((struct sr_output_module *)a),
+			sr_output_id_get((struct sr_output_module *)b));
+}
 
-	return strcmp(oa->id, ob->id);
+static gint sort_transforms(gconstpointer a, gconstpointer b)
+{
+	return strcmp(sr_transform_id_get((struct sr_transform_module *)a),
+			sr_transform_id_get((struct sr_transform_module *)b));
 }
 
 static gint sort_drivers(gconstpointer a, gconstpointer b)
@@ -57,8 +59,9 @@ static gint sort_pds(gconstpointer a, gconstpointer b)
 void show_version(void)
 {
 	struct sr_dev_driver **drivers, *driver;
-	struct sr_input_format **inputs, *input;
-	struct sr_output_format **outputs, *output;
+	const struct sr_input_module **inputs, *input;
+	const struct sr_output_module **outputs, *output;
+	const struct sr_transform_module **transforms, *transform;
 	const GSList *l;
 	GSList *sl;
 	int i;
@@ -66,7 +69,7 @@ void show_version(void)
 	struct srd_decoder *dec;
 #endif
 
-	printf("sigrok-cli %s\n\n", VERSION);
+	printf("sigrok-cli %s\n\n", SC_PACKAGE_VERSION_STRING);
 
 	printf("Using libsigrok %s (lib version %s).\n",
 	       sr_package_version_string_get(), sr_lib_version_string_get());
@@ -76,7 +79,7 @@ void show_version(void)
 #endif
 
 	printf("Supported hardware drivers:\n");
-	drivers = sr_driver_list();
+	drivers = sr_driver_list(sr_ctx);
 	for (sl = NULL, i = 0; drivers[i]; i++)
 		sl = g_slist_append(sl, drivers[i]);
 	sl = g_slist_sort(sl, sort_drivers);
@@ -90,11 +93,12 @@ void show_version(void)
 	printf("Supported input formats:\n");
 	inputs = sr_input_list();
 	for (sl = NULL, i = 0; inputs[i]; i++)
-		sl = g_slist_append(sl, inputs[i]);
+		sl = g_slist_append(sl, (gpointer)inputs[i]);
 	sl = g_slist_sort(sl, sort_inputs);
 	for (l = sl; l; l = l->next) {
 		input = l->data;
-		printf("  %-20s %s\n", input->id, input->description);
+		printf("  %-20s %s\n", sr_input_id_get(input),
+				sr_input_description_get(input));
 	}
 	printf("\n");
 	g_slist_free(sl);
@@ -102,11 +106,25 @@ void show_version(void)
 	printf("Supported output formats:\n");
 	outputs = sr_output_list();
 	for (sl = NULL, i = 0; outputs[i]; i++)
-		sl = g_slist_append(sl, outputs[i]);
+		sl = g_slist_append(sl, (gpointer)outputs[i]);
 	sl = g_slist_sort(sl, sort_outputs);
 	for (l = sl; l; l = l->next) {
 		output = l->data;
-		printf("  %-20s %s\n", output->id, output->description);
+		printf("  %-20s %s\n", sr_output_id_get(output),
+				sr_output_description_get(output));
+	}
+	printf("\n");
+	g_slist_free(sl);
+
+	printf("Supported transform modules:\n");
+	transforms = sr_transform_list();
+	for (sl = NULL, i = 0; transforms[i]; i++)
+		sl = g_slist_append(sl, (gpointer)transforms[i]);
+	sl = g_slist_sort(sl, sort_transforms);
+	for (l = sl; l; l = l->next) {
+		transform = l->data;
+		printf("  %-20s %s\n", sr_transform_id_get(transform),
+				sr_transform_description_get(transform));
 	}
 	printf("\n");
 	g_slist_free(sl);
@@ -141,30 +159,38 @@ static gint sort_channels(gconstpointer a, gconstpointer b)
 static void print_dev_line(const struct sr_dev_inst *sdi)
 {
 	struct sr_channel *ch;
-	GSList *sl, *l;
+	GSList *sl, *l, *channels;
 	GString *s;
 	GVariant *gvar;
+	struct sr_dev_driver *driver;
+	const char *vendor, *model, *version;
+
+	driver = sr_dev_inst_driver_get(sdi);
+	vendor = sr_dev_inst_vendor_get(sdi);
+	model = sr_dev_inst_model_get(sdi);
+	version = sr_dev_inst_version_get(sdi);
+	channels = sr_dev_inst_channels_get(sdi);
 
 	s = g_string_sized_new(128);
-	g_string_assign(s, sdi->driver->name);
-	if (sr_config_get(sdi->driver, sdi, NULL, SR_CONF_CONN, &gvar) == SR_OK) {
+	g_string_assign(s, driver->name);
+	if (maybe_config_get(driver, sdi, NULL, SR_CONF_CONN, &gvar) == SR_OK) {
 		g_string_append(s, ":conn=");
 		g_string_append(s, g_variant_get_string(gvar, NULL));
 		g_variant_unref(gvar);
 	}
 	g_string_append(s, " - ");
-	if (sdi->vendor && sdi->vendor[0])
-		g_string_append_printf(s, "%s ", sdi->vendor);
-	if (sdi->model && sdi->model[0])
-		g_string_append_printf(s, "%s ", sdi->model);
-	if (sdi->version && sdi->version[0])
-		g_string_append_printf(s, "%s ", sdi->version);
-	if (sdi->channels) {
-		if (g_slist_length(sdi->channels) == 1) {
-			ch = sdi->channels->data;
+	if (vendor && vendor[0])
+		g_string_append_printf(s, "%s ", vendor);
+	if (model && model[0])
+		g_string_append_printf(s, "%s ", model);
+	if (version && version[0])
+		g_string_append_printf(s, "%s ", version);
+	if (channels) {
+		if (g_slist_length(channels) == 1) {
+			ch = channels->data;
 			g_string_append_printf(s, "with 1 channel: %s", ch->name);
 		} else {
-			sl = g_slist_sort(g_slist_copy(sdi->channels), sort_channels);
+			sl = g_slist_sort(g_slist_copy(channels), sort_channels);
 			g_string_append_printf(s, "with %d channels:", g_slist_length(sl));
 			for (l = sl; l; l = l->next) {
 				ch = l->data;
@@ -196,23 +222,64 @@ void show_dev_list(void)
 
 }
 
+void show_drv_detail(struct sr_dev_driver *driver)
+{
+	const struct sr_key_info *srci;
+	GArray *opts;
+	guint i;
+
+	if ((opts = sr_dev_options(driver, NULL, NULL))) {
+		if (opts->len > 0) {
+			printf("Driver functions:\n");
+			for (i = 0; i < opts->len; i++) {
+				if (!(srci = sr_key_info_get(SR_KEY_CONFIG,
+						g_array_index(opts, uint32_t, i))))
+					continue;
+				printf("    %s\n", srci->name);
+			}
+		}
+		g_array_free(opts, TRUE);
+	}
+
+	if ((opts = sr_driver_scan_options_list(driver))) {
+		if (opts->len > 0) {
+			printf("Scan options:\n");
+			for (i = 0; i < opts->len; i++) {
+				if (!(srci = sr_key_info_get(SR_KEY_CONFIG,
+						g_array_index(opts, uint32_t, i))))
+					continue;
+				printf("    %s\n", srci->id);
+			}
+		}
+		g_array_free(opts, TRUE);
+	}
+}
+
 void show_dev_detail(void)
 {
+	struct sr_dev_driver *driver_from_opt, *driver;
 	struct sr_dev_inst *sdi;
-	const struct sr_config_info *srci;
+	const struct sr_key_info *srci, *srmqi, *srmqfi;
 	struct sr_channel *ch;
 	struct sr_channel_group *channel_group, *cg;
-	GSList *devices, *cgl, *chl;
-	GVariant *gvar_opts, *gvar_dict, *gvar_list, *gvar;
-	gsize num_opts, num_elements;
+	GSList *devices, *cgl, *chl, *channel_groups;
+	GVariant *gvar_dict, *gvar_list, *gvar;
+	gsize num_elements;
 	double dlow, dhigh, dcur_low, dcur_high;
 	const uint64_t *uint64, p, q, low, high;
-	uint64_t cur_low, cur_high;
-	const int32_t *opts;
-	unsigned int num_devices, o, i;
-	char *tmp_str;
-	char *s;
-	const char *charopts, **stropts;
+	uint64_t tmp_uint64, mask, cur_low, cur_high, cur_p, cur_q;
+	GArray *opts;
+	const int32_t *int32;
+	uint32_t key, o, cur_mq, mq;
+	uint64_t cur_mqflags, mqflags;
+	unsigned int num_devices, i, j;
+	char *tmp_str, *s, c;
+	const char **stropts;
+
+	if (parse_driver(opt_drv, &driver_from_opt, NULL)) {
+		/* A driver was specified, report driver-wide options now. */
+		show_drv_detail(driver_from_opt);
+	}
 
 	if (!(devices = device_scan())) {
 		g_critical("No devices found.");
@@ -227,39 +294,31 @@ void show_dev_detail(void)
 	}
 
 	sdi = devices->data;
+	g_slist_free(devices);
 	print_dev_line(sdi);
+
+	driver = sr_dev_inst_driver_get(sdi);
+	channel_groups = sr_dev_inst_channel_groups_get(sdi);
 
 	if (sr_dev_open(sdi) != SR_OK) {
 		g_critical("Failed to open device.");
 		return;
 	}
 
-	if ((sr_config_list(sdi->driver, NULL, NULL, SR_CONF_SCAN_OPTIONS,
-			&gvar_opts) == SR_OK)) {
-		opts = g_variant_get_fixed_array(gvar_opts, &num_elements,
-				sizeof(int32_t));
-		printf("Supported driver options:\n");
-		for (i = 0; i < num_elements; i++) {
-			if (!(srci = sr_config_info_get(opts[i])))
-				continue;
-			printf("    %s\n", srci->id);
-		}
-		g_variant_unref(gvar_opts);
-	}
-
-	/* Selected channels and channel group may affect which options are
-	 * returned, or which values for them. */
+	/*
+	 * Selected channels and channel group may affect which options are
+	 * returned, or which values for them.
+	 */
 	select_channels(sdi);
 	channel_group = select_channel_group(sdi);
 
-	if ((sr_config_list(sdi->driver, sdi, channel_group, SR_CONF_DEVICE_OPTIONS,
-			&gvar_opts)) != SR_OK)
+	if (!(opts = sr_dev_options(driver, sdi, channel_group)))
 		/* Driver supports no device instance options. */
 		return;
 
-	if (sdi->channel_groups) {
+	if (channel_groups) {
 		printf("Channel groups:\n");
-		for (cgl = sdi->channel_groups; cgl; cgl = cgl->next) {
+		for (cgl = channel_groups; cgl; cgl = cgl->next) {
 			cg = cgl->data;
 			printf("    %s: channel%s", cg->name,
 					g_slist_length(cg->channels) > 1 ? "s" : "");
@@ -272,52 +331,82 @@ void show_dev_detail(void)
 	}
 
 	printf("Supported configuration options");
-	if (sdi->channel_groups) {
+	if (channel_groups) {
 		if (!channel_group)
 			printf(" across all channel groups");
 		else
 			printf(" on channel group %s", channel_group->name);
 	}
 	printf(":\n");
-	opts = g_variant_get_fixed_array(gvar_opts, &num_opts, sizeof(int32_t));
-	for (o = 0; o < num_opts; o++) {
-		if (!(srci = sr_config_info_get(opts[o])))
+	for (o = 0; o < opts->len; o++) {
+		key = g_array_index(opts, uint32_t, o);
+		if (!(srci = sr_key_info_get(SR_KEY_CONFIG, key)))
 			continue;
 
-		if (srci->key == SR_CONF_TRIGGER_TYPE) {
-			if (sr_config_list(sdi->driver, sdi, channel_group, srci->key,
-					&gvar) != SR_OK) {
+		if (key == SR_CONF_TRIGGER_MATCH) {
+			if (maybe_config_list(driver, sdi, channel_group, key,
+					&gvar_list) != SR_OK) {
 				printf("\n");
 				continue;
 			}
-			charopts = g_variant_get_string(gvar, NULL);
+			int32 = g_variant_get_fixed_array(gvar_list,
+					&num_elements, sizeof(int32_t));
 			printf("    Supported triggers: ");
-			while (*charopts) {
-				printf("%c ", *charopts);
-				charopts++;
+			for (i = 0; i < num_elements; i++) {
+				switch (int32[i]) {
+				case SR_TRIGGER_ZERO:
+					c = '0';
+					break;
+				case SR_TRIGGER_ONE:
+					c = '1';
+					break;
+				case SR_TRIGGER_RISING:
+					c = 'r';
+					break;
+				case SR_TRIGGER_FALLING:
+					c = 'f';
+					break;
+				case SR_TRIGGER_EDGE:
+					c = 'e';
+					break;
+				case SR_TRIGGER_OVER:
+					c = 'o';
+					break;
+				case SR_TRIGGER_UNDER:
+					c = 'u';
+					break;
+				default:
+					c = 0;
+					break;
+				}
+				if (c)
+					printf("%c ", c);
 			}
 			printf("\n");
-			g_variant_unref(gvar);
+			g_variant_unref(gvar_list);
 
-		} else if (srci->key == SR_CONF_LIMIT_SAMPLES) {
-			/* If implemented in config_list(), this denotes the
+		} else if (key == SR_CONF_LIMIT_SAMPLES
+				&& (sr_dev_config_capabilities_list(sdi, NULL, key)
+					& SR_CONF_LIST)) {
+			/*
+			 * If implemented in config_list(), this denotes the
 			 * maximum number of samples a device can send. This
 			 * really applies only to logic analyzers, and then
 			 * only to those that don't support compression, or
 			 * have it turned off by default. The values returned
-			 * are the low/high limits. */
-			if (sr_config_list(sdi->driver, sdi, channel_group, srci->key,
-					&gvar) != SR_OK) {
-				continue;
+			 * are the low/high limits.
+			 */
+			if (sr_config_list(driver, sdi, channel_group, key,
+					&gvar) == SR_OK) {
+				g_variant_get(gvar, "(tt)", &low, &high);
+				g_variant_unref(gvar);
+				printf("    Maximum number of samples: %"PRIu64"\n", high);
 			}
-			g_variant_get(gvar, "(tt)", &low, &high);
-			g_variant_unref(gvar);
-			printf("    Maximum number of samples: %"PRIu64"\n", high);
 
-		} else if (srci->key == SR_CONF_SAMPLERATE) {
+		} else if (key == SR_CONF_SAMPLERATE) {
 			/* Supported samplerates */
 			printf("    %s", srci->id);
-			if (sr_config_list(sdi->driver, sdi, channel_group, SR_CONF_SAMPLERATE,
+			if (maybe_config_list(driver, sdi, channel_group, SR_CONF_SAMPLERATE,
 					&gvar_dict) != SR_OK) {
 				printf("\n");
 				continue;
@@ -357,71 +446,52 @@ void show_dev_detail(void)
 			}
 			g_variant_unref(gvar_dict);
 
-		} else if (srci->key == SR_CONF_BUFFERSIZE) {
-			/* Supported buffer sizes */
-			printf("    %s", srci->id);
-			if (sr_config_list(sdi->driver, sdi, channel_group,
-					SR_CONF_BUFFERSIZE, &gvar_list) != SR_OK) {
+		} else if (srci->datatype == SR_T_UINT64) {
+			printf("    %s: ", srci->id);
+			gvar = NULL;
+			if (maybe_config_get(driver, sdi, channel_group, key,
+					&gvar) == SR_OK) {
+				tmp_uint64 = g_variant_get_uint64(gvar);
+				g_variant_unref(gvar);
+			} else
+				tmp_uint64 = 0;
+			if (maybe_config_list(driver, sdi, channel_group,
+					key, &gvar_list) != SR_OK) {
+				if (gvar) {
+					/* Can't list it, but we have a value to show. */
+					printf("%"PRIu64" (current)", tmp_uint64);
+				}
 				printf("\n");
 				continue;
 			}
 			uint64 = g_variant_get_fixed_array(gvar_list,
 					&num_elements, sizeof(uint64_t));
-			printf(" - supported buffer sizes:\n");
-			for (i = 0; i < num_elements; i++)
-				printf("      %"PRIu64"\n", uint64[i]);
-			g_variant_unref(gvar_list);
-
-		} else if (srci->key == SR_CONF_TIMEBASE) {
-			/* Supported time bases */
-			printf("    %s", srci->id);
-			if (sr_config_list(sdi->driver, sdi, channel_group,
-					SR_CONF_TIMEBASE, &gvar_list) != SR_OK) {
-				printf("\n");
-				continue;
-			}
-			printf(" - supported time bases:\n");
-			num_elements = g_variant_n_children(gvar_list);
+			printf(" - supported values:\n");
 			for (i = 0; i < num_elements; i++) {
-				gvar = g_variant_get_child_value(gvar_list, i);
-				g_variant_get(gvar, "(tt)", &p, &q);
-				s = sr_period_string(p * q);
-				printf("      %s\n", s);
-				g_free(s);
-			}
-			g_variant_unref(gvar_list);
-
-		} else if (srci->key == SR_CONF_VDIV) {
-			/* Supported volts/div values */
-			printf("    %s", srci->id);
-			if (sr_config_list(sdi->driver, sdi, channel_group,
-					SR_CONF_VDIV, &gvar_list) != SR_OK) {
+				printf("      %"PRIu64, uint64[i]);
+				if (gvar && tmp_uint64 == uint64[i])
+					printf(" (current)");
 				printf("\n");
-				continue;
-			}
-			printf(" - supported volts/div:\n");
-			num_elements = g_variant_n_children(gvar_list);
-			for (i = 0; i < num_elements; i++) {
-				gvar = g_variant_get_child_value(gvar_list, i);
-				g_variant_get(gvar, "(tt)", &p, &q);
-				s = sr_voltage_string(p, q);
-				printf("      %s\n", s);
-				g_free(s);
 			}
 			g_variant_unref(gvar_list);
 
 		} else if (srci->datatype == SR_T_STRING) {
 			printf("    %s: ", srci->id);
-			if (sr_config_get(sdi->driver, sdi, channel_group, srci->key,
+			if (maybe_config_get(driver, sdi, channel_group, key,
 					&gvar) == SR_OK) {
 				tmp_str = g_strdup(g_variant_get_string(gvar, NULL));
 				g_variant_unref(gvar);
 			} else
 				tmp_str = NULL;
 
-			if (sr_config_list(sdi->driver, sdi, channel_group, srci->key,
+			if (maybe_config_list(driver, sdi, channel_group, key,
 					&gvar) != SR_OK) {
+				if (tmp_str) {
+					/* Can't list it, but we have a value to show. */
+					printf("%s (current)", tmp_str);
+				}
 				printf("\n");
+				g_free(tmp_str);
 				continue;
 			}
 
@@ -440,13 +510,13 @@ void show_dev_detail(void)
 
 		} else if (srci->datatype == SR_T_UINT64_RANGE) {
 			printf("    %s: ", srci->id);
-			if (sr_config_list(sdi->driver, sdi, channel_group, srci->key,
+			if (maybe_config_list(driver, sdi, channel_group, key,
 					&gvar_list) != SR_OK) {
 				printf("\n");
 				continue;
 			}
 
-			if (sr_config_get(sdi->driver, sdi, NULL, srci->key, &gvar) == SR_OK) {
+			if (maybe_config_get(driver, sdi, channel_group, key, &gvar) == SR_OK) {
 				g_variant_get(gvar, "(tt)", &cur_low, &cur_high);
 				g_variant_unref(gvar);
 			} else {
@@ -470,7 +540,7 @@ void show_dev_detail(void)
 
 		} else if (srci->datatype == SR_T_BOOL) {
 			printf("    %s: ", srci->id);
-			if (sr_config_get(sdi->driver, sdi, NULL, srci->key,
+			if (maybe_config_get(driver, sdi, channel_group, key,
 					&gvar) == SR_OK) {
 				if (g_variant_get_boolean(gvar))
 					printf("on (current), off\n");
@@ -482,13 +552,13 @@ void show_dev_detail(void)
 
 		} else if (srci->datatype == SR_T_DOUBLE_RANGE) {
 			printf("    %s: ", srci->id);
-			if (sr_config_list(sdi->driver, sdi, channel_group, srci->key,
+			if (maybe_config_list(driver, sdi, channel_group, key,
 					&gvar_list) != SR_OK) {
 				printf("\n");
 				continue;
 			}
 
-			if (sr_config_get(sdi->driver, sdi, NULL, srci->key, &gvar) == SR_OK) {
+			if (maybe_config_get(driver, sdi, channel_group, key, &gvar) == SR_OK) {
 				g_variant_get(gvar, "(dd)", &dcur_low, &dcur_high);
 				g_variant_unref(gvar);
 			} else {
@@ -510,28 +580,109 @@ void show_dev_detail(void)
 			printf("\n");
 			g_variant_unref(gvar_list);
 
+		} else if (srci->datatype == SR_T_FLOAT) {
+			printf("    %s: ", srci->id);
+			if (maybe_config_get(driver, sdi, channel_group, key,
+					&gvar) == SR_OK) {
+				printf("%f\n", g_variant_get_double(gvar));
+				g_variant_unref(gvar);
+			} else
+				printf("\n");
+
+		} else if (srci->datatype == SR_T_RATIONAL_PERIOD
+				|| srci->datatype == SR_T_RATIONAL_VOLT) {
+			printf("    %s", srci->id);
+			if (maybe_config_get(driver, sdi, channel_group, key,
+					&gvar) == SR_OK) {
+				g_variant_get(gvar, "(tt)", &cur_p, &cur_q);
+				g_variant_unref(gvar);
+			} else
+				cur_p = cur_q = 0;
+
+			if (maybe_config_list(driver, sdi, channel_group,
+					key, &gvar_list) != SR_OK) {
+				printf("\n");
+				continue;
+			}
+			printf(" - supported values:\n");
+			num_elements = g_variant_n_children(gvar_list);
+			for (i = 0; i < num_elements; i++) {
+				gvar = g_variant_get_child_value(gvar_list, i);
+				g_variant_get(gvar, "(tt)", &p, &q);
+				if (srci->datatype == SR_T_RATIONAL_PERIOD)
+					s = sr_period_string(p * q);
+				else
+					s = sr_voltage_string(p, q);
+				printf("      %s", s);
+				g_free(s);
+				if (p == cur_p && q == cur_q)
+					printf(" (current)");
+				printf("\n");
+			}
+			g_variant_unref(gvar_list);
+
+		} else if (srci->datatype == SR_T_MQ) {
+			printf("    %s: ", srci->id);
+			if (maybe_config_get(driver, sdi, channel_group, key,
+					&gvar) == SR_OK
+					&& g_variant_is_of_type(gvar, G_VARIANT_TYPE_TUPLE)
+					&& g_variant_n_children(gvar) == 2) {
+				g_variant_get(gvar, "(ut)", &cur_mq, &cur_mqflags);
+				g_variant_unref(gvar);
+			} else
+				cur_mq = cur_mqflags = 0;
+
+			if (maybe_config_list(driver, sdi, channel_group,
+					key, &gvar_list) != SR_OK) {
+				printf("\n");
+				continue;
+			}
+			printf(" - supported measurements:\n");
+			num_elements = g_variant_n_children(gvar_list);
+			for (i = 0; i < num_elements; i++) {
+				printf("      ");
+				gvar = g_variant_get_child_value(gvar_list, i);
+				g_variant_get(gvar, "(ut)", &mq, &mqflags);
+				if ((srmqi = sr_key_info_get(SR_KEY_MQ, mq)))
+					printf("%s", srmqi->id);
+				else
+					printf("%d", mq);
+				for (j = 0, mask = 1; j < 32; j++, mask <<= 1) {
+					if (!(mqflags & mask))
+						continue;
+					if ((srmqfi = sr_key_info_get(SR_KEY_MQFLAGS, mqflags & mask)))
+						printf("/%s", srmqfi->id);
+					else
+						printf("/%" PRIu64, mqflags & mask);
+				}
+				if (mq == cur_mq && mqflags == cur_mqflags)
+					printf(" (current)");
+				printf("\n");
+			}
+			g_variant_unref(gvar_list);
+
 		} else {
 
 			/* Everything else */
 			printf("    %s\n", srci->id);
 		}
 	}
-	g_variant_unref(gvar_opts);
+	g_array_free(opts, TRUE);
 
 	sr_dev_close(sdi);
-	g_slist_free(devices);
 
 }
 
 #ifdef HAVE_SRD
 void show_pd_detail(void)
 {
-	GSList *l, *ll, *ol;
 	struct srd_decoder *dec;
 	struct srd_decoder_option *o;
-	char **pdtokens, **pdtok, *optsep, **ann, *val, *doc;
 	struct srd_channel *pdch;
 	struct srd_decoder_annotation_row *r;
+	GSList *l, *ll, *ol;
+	int idx;
+	char **pdtokens, **pdtok, *optsep, **ann, *val, *doc;
 
 	pdtokens = g_strsplit(opt_pds, ",", -1);
 	for (pdtok = pdtokens; *pdtok; pdtok++) {
@@ -559,8 +710,13 @@ void show_pd_detail(void)
 			for (l = dec->annotation_rows; l; l = l->next) {
 				r = l->data;
 				printf("- %s (%s): ", r->id, r->desc);
-				for (ll = r->ann_classes; ll; ll = ll->next)
-					printf("%d ", GPOINTER_TO_INT(ll->data));
+				for (ll = r->ann_classes; ll; ll = ll->next) {
+					idx = GPOINTER_TO_INT(ll->data);
+					ann = g_slist_nth_data(dec->annotations, idx);
+					printf("%s", ann[0]);
+					if (ll->next)
+						printf(", ");
+				}
 				printf("\n");
 			}
 		} else {
@@ -614,3 +770,122 @@ void show_pd_detail(void)
 }
 #endif
 
+void show_input(void)
+{
+	const struct sr_input_module *imod;
+	const struct sr_option **opts;
+	GSList *l;
+	int i;
+	char *s, **tok;
+
+	tok = g_strsplit(opt_input_format, ":", 0);
+	if (!tok[0] || !(imod = sr_input_find(tok[0])))
+		g_critical("Input module '%s' not found.", opt_input_format);
+
+	printf("ID: %s\nName: %s\n", sr_input_id_get(imod),
+			sr_input_name_get(imod));
+	printf("Description: %s\n", sr_input_description_get(imod));
+	if ((opts = sr_input_options_get(imod))) {
+		printf("Options:\n");
+		for (i = 0; opts[i]; i++) {
+			printf("  %s: %s", opts[i]->id, opts[i]->desc);
+			if (opts[i]->def) {
+				s = g_variant_print(opts[i]->def, FALSE);
+				printf(" (default %s", s);
+				g_free(s);
+				if (opts[i]->values) {
+					printf(", possible values ");
+					for (l = opts[i]->values; l; l = l->next) {
+						s = g_variant_print((GVariant *)l->data, FALSE);
+						printf("%s%s", s, l->next ? ", " : "");
+						g_free(s);
+					}
+				}
+				printf(")");
+			}
+			printf("\n");
+		}
+		sr_input_options_free(opts);
+	}
+	g_strfreev(tok);
+}
+
+void show_output(void)
+{
+	const struct sr_output_module *omod;
+	const struct sr_option **opts;
+	GSList *l;
+	int i;
+	char *s, **tok;
+
+	tok = g_strsplit(opt_output_format, ":", 0);
+	if (!tok[0] || !(omod = sr_output_find(tok[0])))
+		g_critical("Output module '%s' not found.", opt_output_format);
+
+	printf("ID: %s\nName: %s\n", sr_output_id_get(omod),
+			sr_output_name_get(omod));
+	printf("Description: %s\n", sr_output_description_get(omod));
+	if ((opts = sr_output_options_get(omod))) {
+		printf("Options:\n");
+		for (i = 0; opts[i]; i++) {
+			printf("  %s: %s", opts[i]->id, opts[i]->desc);
+			if (opts[i]->def) {
+				s = g_variant_print(opts[i]->def, FALSE);
+				printf(" (default %s", s);
+				g_free(s);
+				if (opts[i]->values) {
+					printf(", possible values ");
+					for (l = opts[i]->values; l; l = l->next) {
+						s = g_variant_print((GVariant *)l->data, FALSE);
+						printf("%s%s", s, l->next ? ", " : "");
+						g_free(s);
+					}
+				}
+				printf(")");
+			}
+			printf("\n");
+		}
+		sr_output_options_free(opts);
+	}
+	g_strfreev(tok);
+}
+
+void show_transform(void)
+{
+	const struct sr_transform_module *tmod;
+	const struct sr_option **opts;
+	GSList *l;
+	int i;
+	char *s, **tok;
+
+	tok = g_strsplit(opt_transform_module, ":", 0);
+	if (!tok[0] || !(tmod = sr_transform_find(tok[0])))
+		g_critical("Transform module '%s' not found.", opt_transform_module);
+
+	printf("ID: %s\nName: %s\n", sr_transform_id_get(tmod),
+			sr_transform_name_get(tmod));
+	printf("Description: %s\n", sr_transform_description_get(tmod));
+	if ((opts = sr_transform_options_get(tmod))) {
+		printf("Options:\n");
+		for (i = 0; opts[i]; i++) {
+			printf("  %s: %s", opts[i]->id, opts[i]->desc);
+			if (opts[i]->def) {
+				s = g_variant_print(opts[i]->def, FALSE);
+				printf(" (default %s", s);
+				g_free(s);
+				if (opts[i]->values) {
+					printf(", possible values ");
+					for (l = opts[i]->values; l; l = l->next) {
+						s = g_variant_print((GVariant *)l->data, FALSE);
+						printf("%s%s", s, l->next ? ", " : "");
+						g_free(s);
+					}
+				}
+				printf(")");
+			}
+			printf("\n");
+		}
+		sr_transform_options_free(opts);
+	}
+	g_strfreev(tok);
+}

@@ -17,7 +17,10 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-ACLOCAL_AMFLAGS = -I autostuff
+ACLOCAL_AMFLAGS = -I m4
+GNUMAKEFLAGS = --no-print-directory
+
+AM_CFLAGS = $(SC_EXTRA_CFLAGS) $(SC_WFLAGS) $(SIGROK_CLI_CFLAGS)
 
 bin_PROGRAMS = sigrok-cli
 
@@ -30,17 +33,20 @@ sigrok_cli_SOURCES = \
 	decode.c \
 	sigrok-cli.h \
 	parsers.c \
-	anykey.c
+	anykey.c \
+	options.c
+
+sigrok_cli_LDADD = $(SIGROK_CLI_LIBS)
 
 dist_man_MANS = doc/sigrok-cli.1
 
-EXTRA_DIST = contrib/sigrok-cli_cross.nsi contrib/sigrok-logo-notext.ico
+EXTRA_DIST = contrib/sigrok-logo-notext.ico
 
 MAINTAINERCLEANFILES = ChangeLog
 
 .PHONY: ChangeLog
 ChangeLog:
-	git --git-dir $(top_srcdir)/.git log > ChangeLog || touch ChangeLog
+	git --git-dir '$(top_srcdir)/.git' log >$@ || touch $@
 
 dist-hook: ChangeLog
 

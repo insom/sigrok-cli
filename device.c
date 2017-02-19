@@ -17,36 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "sigrok-cli.h"
-#include "config.h"
+#include <config.h>
 #include <glib.h>
 #include <string.h>
-
-extern struct sr_context *sr_ctx;
-extern gchar *opt_drv;
-extern gchar *opt_channel_group;
-
-/* Convert driver options hash to GSList of struct sr_config. */
-static GSList *hash_to_hwopt(GHashTable *hash)
-{
-	struct sr_config *src;
-	GList *gl, *keys;
-	GSList *opts;
-	char *key;
-
-	keys = g_hash_table_get_keys(hash);
-	opts = NULL;
-	for (gl = keys; gl; gl = gl->next) {
-		key = gl->data;
-		src = g_malloc(sizeof(struct sr_config));
-		if (opt_to_gvar(key, g_hash_table_lookup(hash, key), src) != 0)
-			return NULL;
-		opts = g_slist_append(opts, src);
-	}
-	g_list_free(keys);
-
-	return opts;
-}
+#include "sigrok-cli.h"
 
 static void free_drvopts(struct sr_config *src)
 {
@@ -57,49 +31,18 @@ static void free_drvopts(struct sr_config *src)
 GSList *device_scan(void)
 {
 	struct sr_dev_driver **drivers, *driver;
-	GHashTable *drvargs;
 	GSList *drvopts, *devices, *tmpdevs, *l;
 	int i;
-	char *drvname;
 
 	if (opt_drv) {
-		drvargs = parse_generic_arg(opt_drv, TRUE);
-		drvname = g_strdup(g_hash_table_lookup(drvargs, "sigrok_key"));
-		g_hash_table_remove(drvargs, "sigrok_key");
-		driver = NULL;
-		drivers = sr_driver_list();
-		for (i = 0; drivers[i]; i++) {
-			if (strcmp(drivers[i]->name, drvname))
-				continue;
-			driver = drivers[i];
-		}
-		if (!driver) {
-			g_critical("Driver %s not found.", drvname);
-			g_hash_table_destroy(drvargs);
-			g_free(drvname);
+		if (!parse_driver(opt_drv, &driver, &drvopts))
 			return NULL;
-		}
-		g_free(drvname);
-		if (sr_driver_init(sr_ctx, driver) != SR_OK) {
-			g_critical("Failed to initialize driver.");
-			g_hash_table_destroy(drvargs);
-			return NULL;
-		}
-		drvopts = NULL;
-		if (g_hash_table_size(drvargs) > 0) {
-			if (!(drvopts = hash_to_hwopt(drvargs))) {
-				/* Unknown options, already logged. */
-				g_hash_table_destroy(drvargs);
-				return NULL;
-			}
-		}
-		g_hash_table_destroy(drvargs);
 		devices = sr_driver_scan(driver, drvopts);
 		g_slist_free_full(drvopts, (GDestroyNotify)free_drvopts);
 	} else {
 		/* No driver specified, let them all scan on their own. */
 		devices = NULL;
-		drivers = sr_driver_list();
+		drivers = sr_driver_list(sr_ctx);
 		for (i = 0; drivers[i]; i++) {
 			driver = drivers[i];
 			if (sr_driver_init(sr_ctx, driver) != SR_OK) {
@@ -119,23 +62,25 @@ GSList *device_scan(void)
 struct sr_channel_group *select_channel_group(struct sr_dev_inst *sdi)
 {
 	struct sr_channel_group *cg;
-	GSList *l;
+	GSList *l, *channel_groups;
 
 	if (!opt_channel_group)
 		return NULL;
 
-	if (!sdi->channel_groups) {
+	channel_groups = sr_dev_inst_channel_groups_get(sdi);
+
+	if (!channel_groups) {
 		g_critical("This device does not have any channel groups.");
 		return NULL;
 	}
 
-	for (l = sdi->channel_groups; l; l = l->next) {
+	for (l = channel_groups; l; l = l->next) {
 		cg = l->data;
-		if (!strcasecmp(opt_channel_group, cg->name)) {
+		if (!g_ascii_strcasecmp(opt_channel_group, cg->name)) {
 			return cg;
 		}
 	}
+	g_critical("Invalid channel group '%s'", opt_channel_group);
 
 	return NULL;
 }
-

@@ -17,16 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "sigrok-cli.h"
+#include <config.h>
 #include <stdio.h>
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <termios.h>
-#endif
 #include <unistd.h>
+#endif
 #include <string.h>
 #include <glib.h>
+#include "sigrok-cli.h"
 
 #ifdef _WIN32
 static HANDLE stdin_handle;
@@ -34,30 +35,38 @@ static DWORD stdin_mode;
 #else
 static struct termios term_orig;
 #endif
+static unsigned int watch_id = 0;
 
-static int received_anykey(int fd, int revents, void *cb_data)
+static gboolean received_anykey(GIOChannel *source,
+		GIOCondition condition, void *data)
 {
-	(void)fd;
-	(void)revents;
-	(void)cb_data;
+	struct sr_session *session;
 
-	sr_session_source_remove(STDIN_FILENO);
-	sr_session_stop();
+	(void)source;
+	(void)condition;
+	session = data;
 
-	return TRUE;
+	watch_id = 0;
+	sr_session_stop(session);
+
+	return G_SOURCE_REMOVE;
 }
 
-/* Turn off buffering on stdin. */
-void add_anykey(void)
+/* Turn off buffering on stdin and watch for input.
+ */
+void add_anykey(struct sr_session *session)
 {
+	GIOChannel *channel;
+
 #ifdef _WIN32
 	stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
 
 	if (!GetConsoleMode(stdin_handle, &stdin_mode)) {
 		/* TODO: Error handling. */
 	}
-
 	SetConsoleMode(stdin_handle, 0);
+
+	channel = g_io_channel_win32_new_fd(0);
 #else
 	struct termios term;
 
@@ -65,16 +74,26 @@ void add_anykey(void)
 	memcpy(&term_orig, &term, sizeof(struct termios));
 	term.c_lflag &= ~(ECHO | ICANON | ISIG);
 	tcsetattr(STDIN_FILENO, TCSADRAIN, &term);
-#endif
 
-	sr_session_source_add(STDIN_FILENO, G_IO_IN, -1, received_anykey, NULL);
+	channel = g_io_channel_unix_new(STDIN_FILENO);
+#endif
+	g_io_channel_set_encoding(channel, NULL, NULL);
+	g_io_channel_set_buffered(channel, FALSE);
+
+	watch_id = g_io_add_watch(channel, G_IO_IN, &received_anykey, session);
+	g_io_channel_unref(channel);
 
 	g_message("Press any key to stop acquisition.");
 }
 
-/* Restore stdin attributes. */
+/* Remove the event watch and restore stdin attributes.
+ */
 void clear_anykey(void)
 {
+	if (watch_id != 0) {
+		g_source_remove(watch_id);
+		watch_id = 0;
+	}
 #ifdef _WIN32
 	SetConsoleMode(stdin_handle, stdin_mode);
 #else

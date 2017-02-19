@@ -1,0 +1,2346 @@
+commit 23215c5a9718f6d948597b44aae5f3f2839d445a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 6 23:19:15 2014 +0200
+
+    configure.ac: Bump package version to 0.5.0.
+
+commit c5e1e956dd6728e6fbb8d4ed75b5475bccb26ec9
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 6 23:17:43 2014 +0200
+
+    Bump libsigrok/libsigrokdecode dependencies to 0.3.0 each.
+
+commit 2531ee05a189a1291bb33b966233a04bb7b91c15
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 6 09:00:00 2014 +0200
+
+    NEWS: Add list of user-visible changes so far.
+
+commit 9db40e9fa0ce27cb7cf0982363915ed13d117138
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 6 20:20:04 2014 +0200
+
+    Adapt to SR_T_CHAR -> SR_T_STRING rename.
+
+commit 66d5560b7b93c877b9edd2dc4ffe71072a05e5db
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon May 5 01:54:48 2014 +0200
+
+    manpage: Document the --frames option.
+
+commit bf83693242056ba7bf8036fc7c4a8a0868359d40
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun May 4 23:14:25 2014 +0200
+
+    Update the manpage.
+    
+     - Don't refer to the not yet existing nexus-osciprime driver.
+    
+     - Update an example sigrok-cli --scan output to match the current format.
+    
+     - Update some sections to honor that channels are now specified by
+       name (not number). Example: "-P uart:rx=FTDIRX" instead of "-P uart:rx=6"
+       (if channel 6 has been actually named "FTDIRX" by the user/frontend).
+    
+       This fixes bug #332.
+    
+     - SPI PD: The 'sck' pin is now called 'clk', update the manpage example.
+    
+     - Fix a typo in the -S documentation: s/-A/-P/.
+    
+     - The --time option currently only supports "ms" and "s" as units.
+    
+     - Various minor cosmetic changes.
+
+commit 6da249da0628ad1ecfb880a19bbe4795ada755c7
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun May 4 16:49:01 2014 +0200
+
+    Use a non-recursive automake setup.
+    
+    (fewer files, less clutter)
+
+commit 628197af18a8019eb9fd5d0aa280e7f4eca7f1ac
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Apr 26 12:11:16 2014 -0700
+
+    Fix compile without decoding support.
+    
+    This fixes bug 351.
+
+commit 4ed1cdea40388d1888f073d51ebc484031fee3d9
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Apr 25 19:32:01 2014 +0200
+
+    session: Show unitsize of the received data.
+    
+    Also, minor consistency fixes.
+
+commit f4ffd032cfb0b8fe927d82bdba136f357b8dad79
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Apr 24 20:58:35 2014 +0200
+
+    Fix saving to session file.
+
+commit b4d72c27b716b729a35e5d985f11f69ef5e2fa8e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Apr 22 23:37:14 2014 +0200
+
+    Don't output anything else when decoding.
+
+commit 6709a6946448e9178100e751803c0c5b58e3a396
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Apr 20 23:13:16 2014 +0200
+
+    Use new output module API wrappers.
+
+commit 667d4a18657b4a2b4ea77c97f4206a18dfcf86ad
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Apr 19 15:34:14 2014 +0200
+
+    Drop obsolete output API support.
+
+commit 3dfbfbc82fe09a1fa57daff87c3aadadae3773a1
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Apr 12 13:42:30 2014 +0200
+
+    Rename 'probe' to 'channel' (libsigrokdecode change).
+    
+    The -p|--probes option is renamed to -C|--channels.
+    
+    Variables of type 'struct srd_channel *' are consistently named 'pdch' to
+    make them easily distinguishable from libsigrok's 'struct sr_channel *'
+    variables that are consistently named 'ch'.
+
+commit 8b65cdcc7db2ea380003fe98d93782e4343b8e70
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Apr 13 20:51:59 2014 +0200
+
+    Always get samplerate at the start of acquisition.
+
+commit efe1b57dcc6d60c42796d4f7957d2868bc160628
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Apr 7 15:26:39 2014 +0200
+
+    Deal with empty sessions nicely.
+
+commit 5a10320a1521325e765ca5ab00258275e7fbcc53
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Apr 13 18:17:04 2014 +0200
+
+    configure.ac: Clearly mark required and optional libs.
+
+commit 0b34fecd023e6b2d2fd70e67c6c4f59bb06e299b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Apr 4 19:57:23 2014 +0200
+
+    nsis: Drop embedded Python installer, ship local DLL and modules.
+
+commit 029d73fe03db2656ceb2ca0f5a3fea57393fdfda
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Mar 24 22:32:47 2014 +0100
+
+    Rename 'probe' to 'channel' in most places.
+    
+    This is an update related to bug #259.
+
+commit ca50f4b3d69016014c8ab9d7765da68fdb8d796f
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Mar 14 21:46:10 2014 +0100
+
+    Rename 'probe group' to 'channel group' everywhere.
+    
+    This is required to adapt to the same rename in libsigrok.
+    
+    The --probe-group command-line option is now called --channel-group
+    (however, the short version -g remains the same as it means "group").
+    
+    This is an update related to bug #259.
+
+commit 426d0cdaa91051c30d45055b3c10662fd392ea5a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Mar 21 00:50:30 2014 +0100
+
+    Add support for setting double ranges.
+    
+    This is used for SR_CONF_VOLTAGE_THRESHOLD.
+
+commit 8e301dd26c1ff7703918e0ece7f3530f4ae76f24
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Mar 20 14:01:22 2014 +0100
+
+    configure.ac: Only check for things we actually use.
+    
+    Drop checks where we don't use the result (yet). We might bring back
+    some of those once we start actually using the result in the code.
+
+commit 72db8c56417114b50c2f7aa08d71a0ab79672ef4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Mar 20 13:15:50 2014 +0100
+
+    nsis: Put sigrok-dumps *.sr files into the installer.
+    
+    These are useful for people to have around for conveniently testing
+    various frontend features and protocol decoders etc.
+
+commit f2e8273289ec855bb35a5a78ed49d1f1c761be94
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Mar 13 19:31:28 2014 +0100
+
+    decode: Show possible values for decoder options.
+
+commit 790b026162332c5c189bf424d12c27468b12c4cb
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Mar 13 16:39:16 2014 +0100
+
+    decode: Allow for specifying multiple annotations.
+
+commit dd2f206a287e1b13abf4307c940f874668d30113
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Mar 13 10:54:10 2014 +0100
+
+    Sort probes by index.
+
+commit 6ea663a7639b87bab38c4c94624fdc9cce633ca4
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Mar 12 19:12:20 2014 +0100
+
+    session: Always save in chunks, including in continuous mode.
+
+commit 1afa97c57be988585796c2b88a3fcb8f881006b8
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Mar 11 23:43:20 2014 +0100
+
+    nsis: Fix the "working dir" path for sigrok-cli.
+    
+    For now, start the "DOS box" in the sigrok-cli installation directory,
+    so that the firmware files and decoder files are found correctly.
+    We'll probably use another solution that sets %PATH% later on, though.
+    
+    Thanks to Peter Newman for bringing up this issue.
+
+commit 53d0e70015e43abe94502906f58d82c97fc10272
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Mar 11 22:09:53 2014 +0100
+
+    nsis: contrib/sigrok-cli.nsi.in: Drop obsolete file.
+    
+    We're only using the cross-compile version sigrok-cli_cross.nsi.in these
+    days since it is much more convenient, and the old native build file
+    was not working and/or up-to-date anyway.
+
+commit 37e4fcd41def785a6c9e658bfa28528216b03441
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Mar 11 11:23:47 2014 +0100
+
+    show: Sort ALL the things.
+
+commit 09fea207f5b65b5baac537c7d576aa057b8feaf6
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Mar 10 20:29:56 2014 +0100
+
+    Don't try to set up probes for stacked protocol decoders.
+
+commit dcc5ebf83adcfc8d6d5c0820e0a20d85b421b179
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Feb 24 01:35:31 2014 +0100
+
+    decode: Remove debug output.
+
+commit ea6d6dec72cb0a52ec7a423ce17e90014a5ebac2
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Feb 21 22:56:44 2014 +0100
+
+    session: Do not derive unit size from enabled probes.
+
+commit 8667d3c244533a17839a4ea0e891251ff7f86af7
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Feb 21 22:40:38 2014 +0100
+
+    session: Remove call to sr_filter_probes()
+
+commit 39aedc34ab864e95a395558f8b8d4be3beb11371
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Feb 21 20:10:09 2014 +0100
+
+    decode: Defer probe setup until after the input probes are known
+
+commit 7b30c426552e9baf9998df61447adec91a17cb9d
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Feb 21 01:12:26 2014 +0100
+
+    parse_probestring: Return list of all probes by default.
+
+commit 6df458b71ace93941780153b79b348d4fd99493d
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Feb 21 00:50:22 2014 +0100
+
+    parse_probestring: Fix memory leak on error.
+
+commit e1ec80fab866118c0403c81bbc7fcc4ae0818fb1
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Fri Feb 21 00:34:12 2014 +0100
+
+    session: Allow probe selection for session files.
+
+commit 342ad7895e3beeea0035c38c2439189a3ae270c9
+Author: Daniel Elstner <daniel.kitta@gmail.com>
+Date:   Thu Feb 20 06:31:40 2014 +0100
+
+    Pass new unit_size argument to srd_inst_probe_set_all()
+
+commit b39f3a1a12b4a79b9a2d2a005b2474483438fa2a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Jan 31 18:33:51 2014 +0100
+
+    show: Cosmetics and consistency fixes.
+
+commit 1eb46be87ba64500504044da46d77e059193ccc4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Jan 31 18:23:13 2014 +0100
+
+    show: Add support for showing PD annotation rows.
+
+commit 8791df0780654f295b0b6b532683410d38624213
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Jan 31 14:41:07 2014 +0100
+
+    manpage: Break line that's too long.
+    
+    Otherwise "man" will auto-break it and add a confusing dash, etc. etc.
+
+commit ec3d44c892c006baa6c2bf39017fc76181bbe8bf
+Author: Karl Palsson <karlp@remake.is>
+Date:   Fri Jan 31 11:13:52 2014 +0000
+
+    man: Update uart decode example syntax
+    
+    "parity" is no longer a valid option, it's parity_type
+
+commit 55de58a2b9ea6673d30e7250b60fa36953e0447a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Jan 28 15:55:24 2014 +0100
+
+    Fix more warnings when building without libsigrokdecode.
+
+commit 8d52f788755a9666e7053c2d411fec069f5afc4c
+Author: Dan Horák <dan@danny.cz>
+Date:   Sat Jan 25 14:15:24 2014 +0100
+
+    fix build without libsigrokdecode
+    
+    When built with libsigrokdecode additional headers are automagically included
+    via the Python.h header. When built without they must included explicitly.
+
+commit 02c659351bda97f77922356f48a7eed1d3137011
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 19 17:22:19 2014 +0100
+
+    Don't use SR_CONF_MAX_UNCOMPRESSED_SAMPLES.
+    
+    This uses the new sr_config_list(SR_CONF_LIMIT_SAMPLES) method to
+    get the same information.
+
+commit 21f6f69686721d53b44c2da8d138c8d85780b8d8
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 12 22:52:36 2014 +0100
+
+    Remove special handling of pattern mode options.
+    
+    It's just a standard list of strings, better handled by the regular
+    mechanism.
+
+commit be781321930917609d92b4446b894a1b8a23ce13
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jan 9 16:48:17 2014 +0100
+
+    Don't leak GVariant.
+
+commit c7a5cb12421c05c2ab3e54472f93531a239ca12c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jan 9 13:23:32 2014 +0100
+
+    Check device uncompressed memory size before running.
+
+commit 5ff52594370440308134eff32ae06d5ee9b13ee0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Dec 24 00:11:32 2013 +0100
+
+    Binary output type now contains [name, description]
+
+commit 7d8068f88f58f3998a9c74956e385a1e906001e8
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Jan 5 11:42:34 2014 +0100
+
+    nsis: Install zadig (used for driver switching).
+
+commit cc76d4230af8ce99ff03a13026f92609971f15ec
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Jan 5 01:59:32 2014 +0100
+
+    nsis: Install libusb0.dll with the application.
+    
+    This fixes bug #243.
+
+commit bb26e3fcc95e0e7bf4db8eebf151f8234e388699
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Thu Jan 2 14:39:19 2014 +0100
+
+    nsis: Mention firmware files in description.
+
+commit c7f154fc70195ca67b29f1a2e9b298ba0d3113cf
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Jan 1 20:42:18 2014 +0100
+
+    nsis: Fix File/RMDir copy-paste error.
+
+commit 01833aec90b5339a2b8d12867c261346f1498356
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Jan 1 19:09:58 2014 +0100
+
+    nsis: Also put firmware files into the installer.
+
+commit ad54a1a630e6887204bc57a95075f403fd44aa6c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Dec 26 12:08:34 2013 +0100
+
+    Add support for config keys of type G_VARIANT_TYPE_INT32.
+
+commit e71b3ff7687695c6d61d751d06785f95bb6c606a
+Author: Martin Ling <martin-git@earth.li>
+Date:   Fri Dec 6 01:39:50 2013 +0000
+
+    Fix hardcoded home directory (pass -DHOME=$HOME to makensis).
+
+commit 6d1dbe35407ebdc1d3174bc18eeac2980807b9c4
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Dec 1 11:55:36 2013 +0100
+
+    Clean up annotation output.
+
+commit 6fdcc67df1da2edc38ea16bf2f17950ba4a0161e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Nov 27 11:24:45 2013 +0100
+
+    Rearrange protocol decoder output levels.
+    
+    The protocol decoder output now varies according to --loglevel:
+    
+    WARN (--loglevel 2, default):
+      - show only the first annotation string, without quotes
+    
+    INFO (--loglevel 3):
+      - add sample numbers
+      - quotes around annotation
+    
+    DBG (--loglevel 4 and up):
+      - add protocol decoder id
+      - add annotation class
+      - show all annotation strings, not just the first
+    
+    In all cases, all annotation classes are shown, unless restricted with
+    the --protocol-decoder-annotations (-A) option.
+
+commit 20fb52e08416238c60392b410f69856cc7d98650
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Nov 19 11:48:06 2013 +0100
+
+    Fix a bunch of compiler warnings.
+    
+    We need to ensure that libsigrokdecode.h is always the first #include,
+    otherwise some versions of Python will cause all kinds of compiler
+    warnings like these:
+    
+      CC       device.o
+    In file included from /usr/include/python3.2mu/Python.h:8:0,
+                     from [...]/include/libsigrokdecode/libsigrokdecode.h:25,
+                     from sigrok-cli.h:26,
+                     from device.c:23:
+    /usr/include/python3.2mu/pyconfig.h:1182:0: warning: "_POSIX_C_SOURCE" redefined [enabled by default]
+     #define _POSIX_C_SOURCE 200112L
+     ^
+    In file included from /usr/include/limits.h:26:0,
+                     from /usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed/limits.h:168,
+                     from /usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed/syslimits.h:7,
+                     from /usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed/limits.h:34,
+                     from /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h:11,
+                     from /usr/include/glib-2.0/glib/gtypes.h:34,
+                     from /usr/include/glib-2.0/glib/galloca.h:34,
+                     from /usr/include/glib-2.0/glib.h:32,
+                     from device.c:21:
+    /usr/include/features.h:231:0: note: this is the location of the previous definition
+     #  define _POSIX_C_SOURCE 200809L
+     ^
+    
+    Since sigrok-cli.h already #includes libsigrok.h and libsigrokdecode.h,
+    just ensure that the latter is always the first #include by _only_
+    including it in sigrok-cli.h and nowhere else.
+
+commit 30364883abef6a52180fc6244d79788298729137
+Author: poljar (Damir Jelić) <poljar@poljar.org>
+Date:   Tue Nov 19 11:28:09 2013 +0100
+
+    sigrok-cli: Fix memory leak if we save the default output format to a file.
+    
+    g_free_byte_array accepts as the second argument a gboolean which determines if
+    the actual byte data should also be freed:
+    	https://developer.gnome.org/glib/2.28/glib-Byte-Arrays.html#g-byte-array-free
+    
+    If we pass a FALSE here the data should be freed with g_free(), instead just
+    pass TRUE and the data will be automatically freed.
+
+commit f0f2c3f3d5627d5ac7c3cdceb43b0ccd8782319d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 17 19:19:55 2013 +0100
+
+    Fix autoconf after refactoring
+
+commit 26c63758bd4e5676cb6c987668ca46053c5e82bb
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 17 18:51:15 2013 +0100
+
+    Reduce reliance on globals
+
+commit 2be182e6437fb082aedca653fdc106d702518db0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 17 13:15:38 2013 +0100
+
+    Refactor main source into separate files
+
+commit b4584f8dc3b0e7209b7ff819de2991cb09f5a4af
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 10 12:50:52 2013 +0100
+
+    Show only one output type at the same time.
+    
+    OUTPUT_BINARY takes precedence if specified, and is always output
+    'raw', without extra information, so it can be piped into other programs.
+    
+    Otherwise, if specified, OUTPUT_META is shown. If none of these is
+    specified, the default is to show OUTPUT_ANN (all classes) of the
+    top PD in the stack.
+
+commit 61d33a0f49b3c8bc6cc2dfafaaa7d2a1c9d8b1e0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 10 12:49:38 2013 +0100
+
+    Use new option -B for OUTPUT_BINARY
+
+commit e947e227a2fd904d5617858aeb7e34239efa964d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 10 12:55:23 2013 +0100
+
+    Show only the longest PD annotation.
+
+commit 283833bfefc6541ce5e10716077436bad8668350
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 10 12:54:58 2013 +0100
+
+    if no PD annotation class is specified, show all of them by default.
+
+commit f1c146f0854e5e098cafe4cf5a2a74f9bcf06117
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Nov 9 11:04:39 2013 +0100
+
+    New option -M for OUTPUT_META
+
+commit 8ec203864b3a33b731c591034d06d55998210a79
+Author: poljar (Damir Jelić) <poljar@poljar.org>
+Date:   Thu Nov 14 20:01:18 2013 +0100
+
+    sigrok-cli: Fix two memory leaks in parse_probestring().
+    
+    This patch fixes two memory leaks if multiple probe names or probe ranges are
+    specified.
+
+commit 4cc804fff331bce08672107c0ece2b3f8dd9410e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Nov 7 22:46:40 2013 +0100
+
+    Use annotation-specific struct
+
+commit 7c4a2b15df1bddbe2f4a73d2a519e15a36d64929
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Nov 11 10:03:03 2013 +0100
+
+    Revert "Use annotation-specific struct".
+    
+    This reverts commit fa498bbb3baf5d9bf62fe0e013aaf434cb2732fd (which
+    was accidentally committed).
+
+commit 31f9318a9e198ce3e4ac0af7d9b131e03aa7b5d0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Nov 11 09:40:15 2013 +0100
+
+    Update man page for --probe-group
+
+commit fa498bbb3baf5d9bf62fe0e013aaf434cb2732fd
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Nov 7 22:46:40 2013 +0100
+
+    Use annotation-specific struct
+
+commit 9d47bc568a3e53f10f4da1b4cd8d2494034cd096
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Nov 3 14:18:19 2013 +0100
+
+    Report options requiring probe groups by passing them in if given
+
+commit dd671ce797d8eb49d7d883df3ae65145033607cf
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Nov 2 22:44:14 2013 +0100
+
+    New --probe-group option
+    
+    Devices that don't use probe groups don't need this option at all;
+    it only needs to be specified when using a device that has probe
+    groups, and then only for options that require it.
+
+commit 96e0e4500717f3e09e6c9bae3f1f10967c8d6535
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Nov 2 22:43:32 2013 +0100
+
+    Report probe groups with --show
+
+commit 1c4eb5c6f98d4cc1f2f4c004188f289e280d14aa
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Nov 2 03:20:47 2013 +0100
+
+    Probe group API fixes
+
+commit 3f2d32a46e81348d722ea287b8bde42bfdd21029
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Nov 1 02:38:50 2013 +0100
+
+    Use new probe_groups API
+
+commit 49dbdb782e21dda3e9be242ddcc37f0bcd06f4a7
+Author: poljar (Damir Jelić) <poljarinho@gmail.com>
+Date:   Wed Oct 30 23:04:02 2013 +0100
+
+    sigrok-cli: Fix leaks in device_scan().
+    
+    If a bogus driver name is specified on the command line or for some reason we
+    fail to initialize a driver device_scan() leaks data.
+    
+    This patch adds appropriate free calls.
+
+commit d80c8dd0c8b6a7507ff8e16ba46734da394acecf
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Oct 30 22:39:00 2013 +0100
+
+    Adjust to libsigrokdecode API changes
+
+commit 608beef369c388837aedd07e345c2a6e6e1dfedf
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Oct 30 14:39:59 2013 +0100
+
+    Actually exit when a fatal error is logged
+
+commit a0e3651198ca9f75fcedf2ad7f7cdb66caab7f47
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Sep 13 00:02:23 2013 +0200
+
+    Use the new libsigrokdecode session API
+
+commit e536047e5e8e54a7dfeca1e9782326e5e0da17a6
+Author: Matt Ranostay <mranostay@gmail.com>
+Date:   Tue Sep 10 22:38:05 2013 -0700
+
+    sigrok-cli: Allow both hex and decimals parameters
+    
+    When strtoll() base parameter is set to 0 it can handle both hex and
+    decimals values.
+    
+    Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+
+commit 7058a9b8924047b6c3066e80397dcb789e10c9c4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Sep 8 19:59:05 2013 +0200
+
+    Fix issue with optional PD probes.
+    
+    Running (or showing info about) PDs with optional probes was not working
+    and causing segfaults.
+    
+    The reason was a g_slist_concat() call that was applied to a list,
+    whereas it needs to be applied to a copy of the list.
+    
+    This fixes #138.
+
+commit c25c8e457b4f0ce20000164edb391803d58e4c07
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Sep 6 00:30:38 2013 +0200
+
+    List dummy "sigrok" file format, and accept it as option
+    
+    See bug 131
+
+commit 1e484911c49863a26e6c85f071bced106db8cb5e
+Author: Marc Schink <sigrok-dev@marcschink.de>
+Date:   Mon Aug 5 14:40:23 2013 +0200
+
+    Remove datafeed callbacks to prevent memory leak.
+
+commit 9eee58d8e29267d017a04bd97be64284eb487c1f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Sep 2 11:28:22 2013 +0200
+
+    Avoid trying to save to a file if there's nothing to save
+    
+    This works around the division by zero when trying to save analog
+    data.
+
+commit 363098be4b450f19d834ecb2d5a007acf538de3a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Jul 31 22:16:33 2013 +0200
+
+    NEWS: Fix typo in the year.
+    
+    Thanks codyps1 on IRC for the report.
+
+commit 43d3d80b4e2d410b7b36008111f8153d2ee2e63c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jun 20 17:06:42 2013 +0200
+
+    More generic handling of SR_T types, and SR_T_UINT64 support
+
+commit b86569215cf5213e0d2421d1cf014be1c4fe1309
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Jun 14 01:50:39 2013 +0200
+
+    manpage: Escape minus characters.
+
+commit 7d559a46968ca2fa651f518d44aa5ca5ce01e568
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu May 9 13:49:37 2013 +0200
+
+    Fix error message and compiler warning
+    
+    Thanks to Christian Deussen for the patch.
+
+commit 17982bc9679dffb9dadf684586bf67703e007c79
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 7 15:46:29 2013 +0200
+
+    Fix various memory leaks
+
+commit b6479f7df73a0933bc364dcd61ae45955d826bf1
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat May 4 21:37:41 2013 +0200
+
+    configure.ac: Update version number to 0.4.0.
+
+commit 89f3a1651447617972e5fe61a431e96251dba5d3
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat May 4 15:51:06 2013 +0200
+
+    NEWS: Add changes since the last release.
+
+commit efdb6a22b4d357006d0fe6c4b88e1980dc805d9b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri May 3 20:42:41 2013 +0200
+
+    Adapt to new <libsigrokdecode/libsigrokdecode.h> header.
+
+commit 7091896f954320abd4a46ed5569a436d904c2d2e
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri May 3 19:53:09 2013 +0200
+
+    sigrok-cli depends on libsigrokdecode >= 0.2.0.
+
+commit b5ac81adae0c148cc3c4088c79a6229948dc9b3a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Apr 30 15:15:13 2013 +0200
+
+    Update man page
+
+commit ea7741ee9521becb0d4fdcefa58b0f2f54d1f398
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Apr 30 13:58:04 2013 +0200
+
+    Update cmdline options to better reflect functionality
+
+commit 89a9bb0ef5929fc3d1b629f919ffc6141cdf2fb2
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Apr 30 00:07:16 2013 +0200
+
+    Remove anykey input source after it fired
+
+commit d79d480604b5c9d0946f6e25c638bdfae1b8961d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Apr 29 01:14:43 2013 +0200
+
+    Fix error message
+
+commit 644bb1e88009546aadd919695d3dd602f06441d7
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Apr 27 17:34:00 2013 +0200
+
+    Use new output API receive() function
+
+commit 0687f23db01dae4bb7d7f4398126ef6fab0402b0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Apr 23 01:15:32 2013 +0200
+
+    Open device before adding it to the session
+
+commit 630293b49d7645f2525ac5addad37c1f9315d2ce
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Apr 23 22:10:41 2013 +0200
+
+    GPL headers: Use correct project name.
+
+commit a8a380bd8e1b29add408e7351fbc67891b3a8cbf
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Apr 23 21:39:46 2013 +0200
+
+    README: Add "Copyright and license" section.
+
+commit 58b036281136570a7aaa187fffeeda2e4cd466ce
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Apr 22 13:46:13 2013 +0200
+
+    Add NSIS file for use with cross-compiled sigrok-cli.
+
+commit fe6970ec62afc3538ec4d994edd7c16e24baba4d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Apr 18 01:17:20 2013 +0200
+
+    Show driver name and optional conn string
+
+commit 74f6195bc64ff9d8d215d0d64bb5d1b57520ef54
+Author: Martin Ling <martin-git@earth.li>
+Date:   Mon Apr 15 21:17:23 2013 +0100
+
+    Update for libsigrok datafeed callback API changes.
+
+commit 4e0db44dcd411cb282f64714aa7f0521d2ed00ea
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Apr 15 12:35:51 2013 +0200
+
+    Small variable naming fix to avoid confusion.
+
+commit 397969ae77161b9a56da14a68a79f82a094d4134
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Apr 15 12:30:31 2013 +0200
+
+    configure.ac: Show $build, $host, and lib versions.
+
+commit e07340ad1d811e8e29ec54e566a4f75fcb7a59cb
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Apr 7 21:04:35 2013 +0200
+
+    SR_CONF_TIMEBASE and _VDIVS lists are now an array of tuples
+
+commit f73128e45d33debfa0ca99aec564c3768e98090f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Mar 31 10:21:11 2013 +0200
+
+    More GVariant conversions
+
+commit 2f50086c572089388b26afe521cae18183a6e891
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Mar 30 15:44:56 2013 +0100
+
+    fix options setting to use GVariant
+
+commit bd31fc3fb35bf317aabe5692aec3d0062cfb8e11
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Mar 30 15:28:28 2013 +0100
+
+    avoid deprecated struct sr_rational
+
+commit 1e1316b3981913263fdb8d74520fa7213230944b
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Mar 26 22:09:28 2013 +0100
+
+    More GVariant conversions
+
+commit 1616f6638109b6505c21a0b9d71c343f6bd00595
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Mar 25 20:55:42 2013 +0100
+
+    Adjust to GVariant-based sr_config_* functions
+
+commit 43c062e647af631c24cbe2594fc15db5cfdb4257
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Mar 19 16:20:08 2013 +0100
+
+    fix time-based limit logic
+
+commit d142a3f76f10605d58f4d1dfb1d93ed8c86a0a34
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Mar 19 01:57:52 2013 +0100
+
+    use new libsigrok GVariant-based option/probe passing
+
+commit 2da4987098b2370d5d23f61eded00d83780bb18c
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Mar 17 13:02:09 2013 +0100
+
+    README: Refer to INSTALL and new Building wiki page.
+
+commit 82dad9a9d30d65292630b7594d5b23d6ffe453f5
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Mar 17 13:09:35 2013 +0100
+
+    autotools: Don't use "foreign" option.
+    
+    This adds INSTALL and allows for a few more sanity checks being done.
+
+commit 5570e0f274a4a6513c2186117825f783b187adf9
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Mar 16 21:51:32 2013 +0100
+
+    show SR_CONF_SAMPLE_INTERVAL (debug)
+
+commit de0a066e82c23971966752c8abb6ade5e8084008
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Mar 12 22:49:16 2013 +0100
+
+    make libsigrokdecode optional
+    
+    Only if you really need to compile without libsigrokdecode.
+
+commit 8e8827f4055c22b84d507b98342c321d5bed42bc
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Mar 11 16:30:14 2013 +0100
+
+    support for live status of SR_CONF_DATALOG
+
+commit 2d73284ebd14c28579076312987694cbd35cfe42
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Mar 11 16:29:27 2013 +0100
+
+    add --set option
+
+commit 41d7fb2343dc765fa34ffa661ee19c20c93eff9a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Mar 11 15:32:45 2013 +0100
+
+    dump obsolete multiple-device leftover code
+
+commit bea29a448ce20da81676d8ecc42bff9de638ce02
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Mar 5 21:48:34 2013 +0100
+
+    fix SR_DF_END flow
+    
+    Output modules were getting SR_DF_END after their object was already
+    free()d, and the output channel closed.
+
+commit a172e2a0f496c1b7685d8843ace31ac940f91c21
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Mar 5 21:31:50 2013 +0100
+
+    properly check for result after output module data()
+
+commit 41602d35e83390fa01c158cf51bfdb7ba5e713c1
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Feb 22 22:21:39 2013 +0100
+
+    use input API properly
+
+commit 10d98b47bfc37a898b09224fdf9264c37a84c04e
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Feb 5 18:23:02 2013 +0100
+
+    Update, fix, and extend manpage.
+    
+     - Probe indices start at 0 now (not 1).
+     - Update manpage date.
+     - Mention the 'analog' output format.
+     - Various smaller cosmetic fixes.
+     - Add more examples for some options.
+     - Document all possible suffixes for --time/--samples values.
+     - Mention the PulseView(1) manpage in "SEE ALSO".
+     - Mention Bugzilla for bugreports.
+
+commit e4ffb9d69985320cd0a13f5643a13a181527734d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 20:42:43 2013 +0100
+
+    Use sr_dev_has_option() where appropriate.
+
+commit b1bb484525c606019ef14692f814563c2acd58b3
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 16:21:04 2013 +0100
+
+    Use sr_dev_has_option().
+
+commit 9e0e651f4a6a0475ac2a4ecffe3ae550d63ab6e5
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 15:49:21 2013 +0100
+
+    Use sr_config_get().
+
+commit c0b9d56b78c39f8e68a2d45c032a8244a65d05fb
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 15:39:24 2013 +0100
+
+    Use sr_config_set()
+
+commit 894e20532ebaf07e22259d5bcec1b44239855698
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 15:10:22 2013 +0100
+
+    Deprecate SR_DI_HWOPTS.
+
+commit 1cf6a109935a29127f6df954da2defdc73bdedaf
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 15:02:30 2013 +0100
+
+    Deprecate SR_DI_HWCAPS.
+
+commit 5cf23f529349de140ed24782264d27f5321a8cc7
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 11:52:55 2013 +0100
+
+    Deprecate SR_DI_TRIGGER_TYPES.
+
+commit d3d7e30adeec0708d654d66d804a4de80d715565
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 11:26:59 2013 +0100
+
+    Deprecate SR_DI_TRIGGER_SOURCES.
+
+commit 2bedb9bfabb42230833528deedfb9e4e6bedba39
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 11:22:38 2013 +0100
+
+    Deprecate SR_DI_TIMEBASES.
+
+commit b4bd48e9e67aa84c8ecca1a982767a1969ce0d33
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 11:20:01 2013 +0100
+
+    Deprecate SR_DI_FILTERS.
+
+commit 9b0b39f6312c2ebbee92bd97076cffe63116c05e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 11:15:47 2013 +0100
+
+    Deprecate SR_DI_VDIVS.
+
+commit 3ea086fce87fd7e1c13b5616cc0aa670a23ebb9f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 11:04:57 2013 +0100
+
+    Deprecate SR_DI_COUPLING.
+
+commit 2777cbd2d252c1ef23e112e1771052a41aa588eb
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 11:00:53 2013 +0100
+
+    Deprecate SR_DI_BUFFERSIZES.
+
+commit 958194c04c1f4a3800fd77c98825a872b9185aee
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 03:39:18 2013 +0100
+
+    Deprecate SR_DI_PATTERNS.
+
+commit f082186b9b295b21f5ca07132999d8657f6ab2c6
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 03:18:27 2013 +0100
+
+    Deprecate SR_DI_CUR_SAMPLERATE.
+
+commit d2f671dce752792e12f1fbbf200e37db36d88c24
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 25 03:04:59 2013 +0100
+
+    deprecate SR_DI_SAMPLERATES
+
+commit b5c63de93993406ee1ef7e5df0a9cdc66cea9935
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jan 21 23:24:18 2013 +0100
+
+    Use new SR_CONF_* keys.
+
+commit 74b9bf0c14d186ac8681b210322a022b0c42a474
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jan 21 22:00:29 2013 +0100
+
+    Use new sr_config_info*_get() calls.
+
+commit 7e97afa0d99bf4961f1336122fc595cb4bd55e84
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 20 15:29:28 2013 +0100
+
+    handle meta packets, specifically SR_HWCAP_SAMPLERATE
+    
+    It's actually unused, but a good example of how to handle these.
+
+commit 995713f40cb9e7bd7151e0569501b9ee6f1a77a4
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 20 05:55:36 2013 +0100
+
+    use new sr_config struct
+
+commit 53155b2f867187e36064ff67e016bef172997c05
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 20 05:20:55 2013 +0100
+
+    update to newer options
+
+commit e86b6b0e0fcc9b5a164bad6a9b5ac89d6d488407
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Jan 14 11:17:20 2013 +0100
+
+    Makefile.am: Fix typo in 'ChangeLog' target.
+
+commit c27450eab862f8b9cd717dccb98d3b41854d4b20
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 8 14:11:49 2013 +0100
+
+    don't use the obsolete datastore.
+    
+    This also removes the 64-probe limit.
+    
+    Additionally, sigrok-cli now no longer requires a meta packet to be sent;
+    this was an entirely avoidable limitation.
+
+commit 66149c2013c0009c226770e5679ae63fd834bb78
+Author: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Date:   Wed Dec 19 01:31:58 2012 -0600
+
+    parserc.c: Fix memory leak from g_strsplit
+    
+    g_strsplit() returns a newly-allocated NULL-terminated array of strings.
+    g_strfreev() must be used to free it, once it is no longer needed.
+    
+    The probe 'names' were not freed properly, causing a "definitely lost" memory
+    leak.
+    
+    Call g_strfreev(names) to properly free the memory.
+    
+    Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+
+commit a2853311f3a1d9a6e43bd08efbd960f079431bc0
+Author: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Date:   Wed Dec 19 21:53:51 2012 -0600
+
+    sigrok-cli.c: Fix memory leak in parsing of hardware options
+    
+    During parsing of hardware options, hash_to_hwopt() creates a GSList that is
+    passed to device_scan(). The list is discarded by device_scan() and never freed.
+    This is identified by valgrind as "definitely lost".
+    
+    Call g_slist_free_full() on the list when it is no longer needed.
+    
+    Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+
+commit e54290bdb3429a30f06231976980652af3360b0c
+Author: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date:   Thu Dec 27 12:08:51 2012 +0000
+
+    Corrected a comment typo
+
+commit 399a57f9a6cb517bbed9b2ef3ca7c05d1b99cd7d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 1 13:00:33 2013 +0100
+
+    clean up unused code
+
+commit 6b0462c2e0bcad51f759ec2efa417a137e8ca8c6
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 1 12:59:33 2013 +0100
+
+    use constified SRD decoder list
+
+commit 3aa87d4c38b26d337bf7bf5eb44b6a4650709804
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Dec 28 23:42:28 2012 +0100
+
+    fix device-specific options setting
+
+commit 12ea952e9a86f5184bf4e52b6a80fbf7072d50f4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Dec 28 17:30:56 2012 +0100
+
+    configure.ac: Fix CFLAGS settings.
+    
+    Don't override/overwrite CFLAGS in configure.ac, but rather amend it
+    with (currently) "-Wall -Wextra".
+    
+    This properly allows users/packagers to do things like:
+    
+     ./configure (this will default to using "-g -O2" additionally)
+    
+     CFLAGS="-g -O2" ./configure (same as above)
+    
+     CFLAGS="" ./configure (no additional flags)
+    
+     CFLAGS="-g -O0" ./configure (disable optimization, e.g. for valgrind use)
+    
+     etc. etc.
+
+commit 3d905bcc7cf67536f715b7abcf8f566015f325ef
+Author: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date:   Tue Dec 18 20:31:39 2012 +0000
+
+    Make datafeed_in packet parameter a const pointer
+    
+    This patch corresponds to bf53457d in libsigrok.
+
+commit e2fe62cc46b53689105f2434c35cabb238f369b0
+Author: Peter Stuge <peter@stuge.se>
+Date:   Sun Oct 21 20:43:32 2012 +0200
+
+    Add struct sr_context * to sr_driver_init() calls
+    
+    libsigrok.git commit 193691ae1590eb31025d943ffbb0ea5c1047e6ca changes
+    the API of sr_driver_init() to take a struct sr_context * parameter as
+    allocated by sr_init().
+    
+    Move our struct sr_context *sr_ctx out of main() into file global scope
+    so that it can be used easily in all calls to sr_driver_init().
+
+commit f1f703bf0dc63e2b6149f4cfba294253991d04f7
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Nov 11 18:17:52 2012 +0100
+
+    Drop unneeded comments.
+
+commit 5acb76821f33f03745e26c91fbb9cc7bcf34512a
+Author: Peter Stuge <peter@stuge.se>
+Date:   Sun Oct 21 20:43:32 2012 +0200
+
+    Add struct sr_context to the sr_init() and sr_exit() calls
+    
+    libsigrok.git commit b8072700c1bc7d13ba004fd897668b56cec4ac62 adds
+    struct sr_context to the public API, and changes sr_init() and sr_exit()
+    to take a struct sr_context ** and struct sr_context * parameter,
+    respectively.
+    
+    struct sr_context is opaque, and all sr_init() and sr_exit() calls must
+    be balanced.
+    
+    Thanks to the new struct sr_context * the error path code flow can also
+    be simplifed, and allow a single point in main() to clean up after any
+    possible program state.
+
+commit 198f4c6c8d8e572aed41dfc3f7d3fe413e421770
+Author: Peter Stuge <peter@stuge.se>
+Date:   Sun Oct 21 20:52:41 2012 +0200
+
+    Change main() to have only one exit code flow, used also on errors
+
+commit 8630d4a814e95b824b152c1bac3d68640ea3f53e
+Author: Peter Stuge <peter@stuge.se>
+Date:   Sun Oct 21 20:55:35 2012 +0200
+
+    Move sr_exit() in main() to correctly mirror order of initialization
+
+commit 6c6971f0afcd36eb74bc50ca7636224c467ff8ff
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Oct 16 14:56:43 2012 +0200
+
+    Re-add HACKING file after repo split.
+
+commit 3b36b10d8885e27aeab259585fcc5c02511812ed
+Merge: 4d326ca cdcf09f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Oct 14 14:59:11 2012 +0200
+
+    Merge branch 'master' of ssh://sigrok.org/data/git/sigrok-cli
+
+commit 4d326ca137ed1326ccba043929544d65a7d54ccb
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Oct 14 14:58:30 2012 +0200
+
+    more compact display of probe list
+
+commit 497f5362fe63dc5674ab7146384c9efab35d9e5e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Oct 14 14:53:30 2012 +0200
+
+    don't accept numbers as probe indexes in probe string
+    
+    Unless the driver actually names them by number -- but the comparison
+    is done by string now.
+    
+    Syntax for --probes is unchanged; even a range like 0-7 still works,
+    but only if there really are probes named "0", "1" etc.
+
+commit cdcf09f6e0e0a8c419d6cb92f8968e3ecfa753ab
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Oct 10 23:48:11 2012 +0200
+
+    README: Cosmetics, update URL.
+
+commit 31dde8ac6785e9bd36a11abed970380b912c3a4c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Oct 8 22:01:53 2012 +0200
+
+    updated URLs and description
+
+commit ee3a83a5bb4063ccb818c21083673e69f293cd77
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Oct 8 21:59:40 2012 +0200
+
+    restore pre-split ignores
+
+commit 11b62b6f90e9c65beb1b6880c7e254551e296ae2
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Oct 8 21:52:41 2012 +0200
+
+    device detail now lists probes
+
+commit 05e7fa2cf0de4faba11929fa3f0f6848d11830d4
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Sep 8 03:04:55 2012 +0200
+
+    cli: support for new output module API
+
+commit 19c3e1f40ab6e86017bf9771006a1711b4c496ff
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Sep 2 15:40:51 2012 +0200
+
+    cli: fix driver option conversion
+
+commit f83fbc57a5213cae17addf3dfc1cf96c3cf484b6
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Aug 6 12:23:52 2012 +0200
+
+    cli: use --show for PD detail
+
+commit 5c730c7bc889f1acd5db7563d9778478b2ceb0a6
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Aug 6 00:23:29 2012 +0200
+
+    cli: obsolete SR_HWCAP_PROBECONFIG
+
+commit 4ed6cde9892cb3fb1578c9f637da39318b9c62e1
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 5 15:54:43 2012 +0200
+
+    cli: use new sr_dev_config_set() API call
+
+commit 8ab6aafcf752f6a8b1aedebd64b267eb7b385641
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 5 03:33:58 2012 +0200
+
+    cli: don't try to set device options before opening it
+
+commit cfd3ec6e659e099f3b83c4a9bbad98ae30b00739
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Aug 5 03:31:45 2012 +0200
+
+    cli: use new API calls instead of static option data
+
+commit 5d1fb573ad452a5f32d92a291775db07f238aba0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Aug 4 14:36:09 2012 +0200
+
+    cli: rename sr_hw_hwcap_get() to sr_devopt_get()
+
+commit 3e8e0c2d92a6410439d5ff9d2088ecdc5d53b930
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Aug 3 11:48:41 2012 +0200
+
+    cli: use new generic arg parser API
+
+commit 491e882048295442b38bb4c24d830302a23c0b70
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Aug 3 01:05:59 2012 +0200
+
+    cli: don't call sr_session_stop() when SR_DF_END is seen
+    
+    This was effectively an infinite loop in some cases.
+
+commit f8ccd825cc903f6c5014ae4315b9e6acebf149a7
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jul 23 16:20:23 2012 +0200
+
+    cli: fix session saving
+
+commit 06a3fb1093cda34ba6c845b124e3b6c1df5cb4fd
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jul 23 03:06:47 2012 +0200
+
+    cli: code cleanup
+
+commit 8c8056b5a08ae49b9e58f05d3c26462bfa0cc8aa
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jul 23 03:03:07 2012 +0200
+
+    cli: use probe numbers starting from 0
+
+commit 37d5ccc11cb29dd65c9a550eb5c5dea55006bc74
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jul 22 20:16:46 2012 +0200
+
+    cli: change to new struct sr_dev_inst based libsigrok API
+
+commit a2e8008830a99fe0e45399e4360f2d77ce577f2c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jul 22 16:55:26 2012 +0200
+
+    cli: remove dead code
+
+commit 22981b2c4624eb9c3fc570c4cf2631faeeb2bcec
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jul 16 03:12:27 2012 +0200
+
+    cli: add --show option, and switch to new info_get driver API
+
+commit 9e2e414fdd6ddb554524f8f6873a13ec8172a8aa
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jul 16 03:00:56 2012 +0200
+
+    cli: add --driver option, and switch to new sr API scanner
+
+commit 63bb454cc1cec4a3cfdb7bcf5cb7ea37ea50e93a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jul 16 01:03:30 2012 +0200
+
+    cli: more flexible generic arg parser
+
+commit 943d0c0835811a77261b48e1f77dd0a342fea1d2
+Author: Tomaž Šolc <tomaz.solc@tablix.org>
+Date:   Wed Jul 4 16:29:13 2012 +0200
+
+    Allow setting samplerate when reading binary files
+    
+    I had a binary file that I needed to decode using UART decoder. UART
+    decoder needs to know the sample rate for the data, but currently it's
+    not possible to pass parameters to input formats and so the "binary"
+    file format always sets the samplerate to 0.
+    
+    This patch adds the possibility to append a colon-separated list of
+    key=value options to the -I argument, in the same way -d supports it.
+    Also, it makes the "binary" format support the "samplerate" option.
+    
+    I included the GHashTable containing input format options directly in
+    the sr_input struct. I'm not sure if that's the right way to do it. I
+    saw that -d uses a much more elaborate system with device capabilities
+    and typed options, but that seemed like an overkill for input formats.
+
+commit c6ca71bb7e80b50e1fc4f0424ddee15ea8dc5633
+Author: Lars-Peter Clausen <lars@metafoo.de>
+Date:   Thu Jul 5 21:15:10 2012 +0200
+
+    cli: Use sr_session_stop() instead of sr_session_halt()
+    
+    Use sr_session_stop() instead of the deprecated sr_session_halt().
+    
+    Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+
+commit 60ea8937c54f5a8a36b4e4f91de03ff545e2bcd9
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jul 5 01:06:28 2012 +0200
+
+    cli: switch to new <libsigrok/libsigrok.h>
+
+commit e09810e97db06458814a9e19e78988e7f1515c9e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jun 26 23:25:36 2012 +0200
+
+    cli: flush output on write
+
+commit 2d4077a71b069d1b535128c2449cfdda447c6ba1
+Author: Lars-Peter Clausen <lars@metafoo.de>
+Date:   Sun Jun 24 10:58:32 2012 +0200
+
+    cli: Fix typo in protocol decoder stacking example
+    
+    Probe assignments are separated by colon and not by comma.
+    
+    Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+
+commit 366237a361c2fe36ef86202e848e0f07602f07f0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Jun 23 01:17:36 2012 +0200
+
+    sr/srd/cli: require glib version >= 2.28
+    
+    Needed for g_get_monotonic_time(). Thanks to Tomaž Šolc.
+
+commit 5befb6d6d9bdd1e16eac6a77512e93bdb1997197
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Jun 22 17:47:11 2012 +0200
+
+    cli: Add missing fflush(stdout) for PD annotation output.
+    
+    This is required/helpful to be able to pipe sigrok-cli PD output into
+    other tools, like this:
+    
+      sigrok-cli -i ... -a ... | othertool
+
+commit 48f71481bfa1011fd5c1538a0a8d467e0fe615a8
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jun 19 02:13:21 2012 +0200
+
+    cli: use output API for analog and frame begin/end packets
+
+commit eb6162bdcc93c12e3f2cfd8728c5cc6880cc60db
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jun 19 02:08:29 2012 +0200
+
+    cli: not doing sigrokdecode directly from analog data
+    
+    It's just a completely different can of beans.
+
+commit d3f829a1c4bce7d3947df93d5367602a0eb7e01f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Jun 13 00:48:43 2012 +0200
+
+    cli: output API says to check data_out, not length_out
+
+commit 6deff8e771bee3a3a24ee1e7b893c815c381252b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Jun 1 00:23:47 2012 +0200
+
+    cli/gtk/qt: Now all require libsigrok >= 0.2.0 (API changes).
+
+commit 41e915a698501da5a8689d020d913e78815868ee
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu May 31 23:57:16 2012 +0200
+
+    cli: strip off PD arguments before selecting for annotation
+    
+    This fixes the bug where -A didn't work if the PD in question had arguments.
+
+commit 3a06774cf7656481bedcde58e821c68a13a5005d
+Author: Joel Holdsworth <joel@airwebreathe.org.uk>
+Date:   Mon May 7 13:57:43 2012 +0100
+
+    sr: Made hwcap const
+
+commit 498f9167faca80af9cc813979ea87b12b5bb9c87
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu May 17 03:17:28 2012 +0200
+
+    cli: support for SR_HWCAP_COUPLING
+
+commit 8f3b8464ad9b3b322971d8baa1f07739252f1783
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu May 17 02:03:46 2012 +0200
+
+    cli: support SR_HWCAP_VDIV and the new SR_T_RATIONAL_VOLT type
+
+commit d5eb09e305cbbbf7a69265f395a480a843f64c1e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed May 16 02:08:20 2012 +0200
+
+    cli: use SR_T_RATIONAL_PERIOD
+
+commit 2850fca1635d42f630afa7429ae0da8f26ec516b
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 15 22:40:23 2012 +0200
+
+    cli: support for SR_HWCAP_FILTER and SR_DI_FILTERS
+
+commit c8db71728eb10141d68f2139eee5f9e648ce4980
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 15 20:54:10 2012 +0200
+
+    cli: parameter support various new HWCAPs and types
+
+commit ce48d89212945896ed26ece942c255b06b97a89f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Apr 30 19:58:21 2012 +0200
+
+    cli: support for frames, and limiting capture by number of frames.
+
+commit 53993299f9d2b3043f4f6a1d35af444d0afa139f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Apr 23 00:27:30 2012 +0200
+
+    cli: use SR_DF_META_*, support for analog packets
+
+commit 5905a251d96f89418319641532b2d2ec8e848336
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed May 30 22:43:50 2012 +0200
+
+    cli: configure.ac: Bump version number to 0.3.1.
+
+commit d2ee5eea2b984aaa90f2fe641725d7ab1ff9b239
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed May 30 22:15:29 2012 +0200
+
+    cli: Constify a few char *pointers.
+
+commit e7d1a229aacf72625abb811600e6760830214fe6
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed May 30 21:57:44 2012 +0200
+
+    cli: Update NEWS in preparation of 0.3.1 the release.
+
+commit b64d15a340c131950dd0ec21247e1a64aff25281
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed May 30 00:18:59 2012 +0200
+
+    cli: Cosmetic fix for --help output.
+
+commit 478a782d1c7aa2da82e144671dc9feb89729b333
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 29 22:35:38 2012 +0200
+
+    cli: Fix compile error.
+
+commit b6bd032dde74eda6423f13b40e75b9125ad4ce5e
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 29 20:55:22 2012 +0200
+
+    cli: Make --protocol-decoder-annotations plural.
+    
+    This option supports (will support) multiple annotations from multiple
+    PDs, as well as multiple annotation formats per PD, so use plural.
+
+commit 725021fedfa966ec81dab1ca8efbec8721bc0dfc
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 29 20:48:54 2012 +0200
+
+    cli: Add -A (alias for --protocol-decoder-annotation).
+
+commit 1a0be0e3eb0145c4eca5854132ce144b3197273d
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 29 20:39:57 2012 +0200
+
+    cli: manpage cosmetics, updates.
+
+commit 0df1ea3a852ffcfaaab683d459b553db22e29d3b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 29 20:30:15 2012 +0200
+
+    sr/srd/cli/gtk: ChangeLog -> MAINTAINERCLEANFILES.
+    
+    If the (generated) ChangeLog file is marked for DISTCLEANFILES, it'll be
+    removed whenever "make distclean" is called (and is then gone forever if
+    you use the tarballs, for example).
+
+commit 78912cc19a4b64e6a477dff5cd917614f7b9f7c3
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue May 29 00:23:33 2012 +0200
+
+    cli: Output which file format was autodetected.
+
+commit 7fb87027aa4281cc5b61b58d655f3703c7dbc37f
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 29 16:06:40 2012 +0200
+
+    document --protocol-decoder-annotation, and note PD stack is optional.
+
+commit ad2bc4916002865f3bbc23e574a74a295cbe929c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 29 15:44:17 2012 +0200
+
+    cli: factor out output format setup
+    
+    main() is now clean.
+
+commit 120f9ee7614636c32a08516d5833d866d576eb80
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 29 14:50:02 2012 +0200
+
+    cli: option to specify which annotation(s) to show
+    
+    Also factor out PD stack setup, and remove redundant error messages.
+
+commit 445950d388f4b4f2a14fdfb60fd99f17b03a7ec0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 29 12:38:36 2012 +0200
+
+    cli: stop immediately if SRD PD registration fails
+
+commit 432de709d1560fdc861901bc64f19b68a4b2011b
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 29 12:12:51 2012 +0200
+
+    cli: loose string comparison helper
+
+commit 2d6ff326914f965ea5ee187213e8f2116c120d48
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 29 11:36:31 2012 +0200
+
+    cli: always show G_LOG_LEVEL_CRITICAL messages
+
+commit 0399696219fdd7a74d8b5258a4ab8a4ccccf11e7
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon May 28 16:57:33 2012 +0200
+
+    cli: cosmetics
+
+commit 3a999920eb5fa7edd95b9a67b58cdbd653f52f5a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun May 27 19:30:30 2012 +0200
+
+    cli: halt session if SRD session fails to initialize
+
+commit 8170b8eaefadcd4e572d96da2de0dbdbfe7ee131
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat May 26 04:54:34 2012 +0200
+
+    cli: only output module or PD goes to stdout, everything else to stderr
+
+commit d740e6acab064547a4e01ac73a2f4e31ee34a6ee
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed May 23 01:35:23 2012 +0200
+
+    cli: removed obsolete debugging, setup for proper stderr logging
+
+commit b0b056549cdc0ee590deb941453dcf219d5123c7
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue May 22 20:16:56 2012 +0200
+
+    cli: no need to specify stacking order if it's the same as the PD list
+
+commit 04ef7076333ddd52b34f29bae2ef836a322c774b
+Author: Pekka Nikander <pekka.nikander@senseg.com>
+Date:   Fri May 11 19:23:21 2012 +0300
+
+    sr/srd/cli: Fix compiling with Homebrew.
+    
+    Add ACLOCAL_DIR setting and AM_PROG_AR macro for compiling with Homebrew
+    under Mac OS X.
+    
+    Applies essentially the same change to
+    {libsigrok,libsigrokdecode,sigrok-cli}/{autogen.sh,configure.ac}
+    
+    It may be that the same fix is needed for the other autogen.sh and/or
+    configure.ac files, but that hasn't been tested and therefore not in
+    this commit.
+
+commit e9ff6974652a551744ea07ad41bd39c1b6d142a2
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed May 9 18:59:17 2012 +0200
+
+    cli: Print required/optional probes info.
+    
+    When running 'sigrok-cli -a uart' (for example), we now additionally
+    print which required/optional probes the decoder needs.
+
+commit 206220366328498099b3f402a7792a9d3ecfdbfb
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed May 9 00:06:01 2012 +0200
+
+    cli: -V: Print protocol description upon "-l 3" or higher.
+
+commit e2dd5a767b7ac36614ecb626216fcce6ebe22585
+Author: Thomas Jarosch <thomas.jarosch@intra2net.com>
+Date:   Fri May 4 10:18:22 2012 +0200
+
+    Fix bracket placing
+    
+    Make it consistent with the rest of the code
+    
+    Signed-off-by: Thomas Jarosch <thomas.jarosch@intra2net.com>
+
+commit b156de5c04a3e6906ecbbaf0b8b47cf61a152e82
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Apr 18 00:02:54 2012 +0200
+
+    cli: Generate ChangeLog upon 'make dist'.
+
+commit 9d2c55fd0964c1c4255b048ea4372698a3420881
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Apr 17 00:11:25 2012 +0200
+
+    cli: New 0.3.0 release.
+    
+    Document the major user-visible changes in the NEWS file.
+
+commit 4d16724058cbc97eac0f1a9e32322150777a7323
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Apr 16 21:49:05 2012 +0200
+
+    cli: Show sr/srd versions determined at run-time.
+
+commit 2b1614bdbc8b5b9639d6f23310df647a6b3e8c80
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Apr 14 18:50:22 2012 +0200
+
+    cli: NEWS: Add 0.1.0/0.2.0 release docs.
+
+commit adeb93535fdc601bc499298ef9de5a6e36303a64
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Apr 7 18:15:34 2012 +0200
+
+    cli: Add (almost) empty NEWS file.
+
+commit 8364461d47bf8e32767989fdd08f563d983cb816
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Apr 7 18:14:39 2012 +0200
+
+    sr/srd: Use/fix SR(D)_MAX_NUM_PROBES.
+
+commit 8de01efefca39831c0672f600ba0e3c33cdf4e1a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Mar 28 20:00:13 2012 +0200
+
+    sr: out: Use uint8_t (not char) for buffers.
+
+commit 4359a4da174e7aa3d2f24c4fcdb3816a3ba8e1a9
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Mar 25 14:49:11 2012 +0200
+
+    srd/cli/qt: Some more API consistency renames.
+
+commit 30f1c93ffd20a73d9f13c995bdbd55ea76052e75
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Mar 21 19:58:56 2012 +0100
+
+    cli: Fix -V/-h output a bit.
+    
+    Options and their defaults should not be documented there, but rather in
+    the manpage or such.
+
+commit 8c7940f1938c5fec1841eaf84f8c1cf2b00b90b4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Mar 21 18:40:25 2012 +0100
+
+    sr/cli/gtk/qt: Fix package version numbers / docs.
+    
+    The next (and first) libsigrok release will be called 0.1.0.
+    
+    The next (and first) libsigrokdecode release will be called 0.1.0.
+    
+    The next sigrok-cli release will be called 0.3.0 (as we already had a 0.1
+    and 0.2 release of sigrok-cli; those did not yet use the libs, though).
+    
+    sigrok-gtk and sigrok-qt didn't have any releases yet, so their version
+    numbers are set to 0.1.0.
+    
+    Also, consistently use three numbers/digits for our version numbers.
+
+commit 0a56f4ecc9155ec168a2a000ca5310b1fc1b645b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Mar 20 18:09:18 2012 +0100
+
+    sr/cli: s/patternmode/pattern/ in a few places.
+
+commit 37aeb8c5b5ef559407f69ffa72eabc776d9a6705
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Mar 20 17:58:25 2012 +0100
+
+    srd/cli/qt: s/srd_session_feed/srd_session_send/.
+
+commit 1b4b6a7cd517dd1fd672abe1553472bf3e2cb375
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Mar 18 20:30:42 2012 +0100
+
+    cli: Same order for params in manpage and -h.
+
+commit 85f2ddbb7b5bddc1326af1e9ed76b327ee3d10fe
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Mar 18 20:24:31 2012 +0100
+
+    cli: manpage: Document -l, -a, and -s.
+    
+    Also, update list of supporter input/output formats.
+
+commit 7949dca0e7c6e4e5ff285733eaf5b957ba32504f
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Mar 18 14:55:14 2012 +0100
+
+    cli: Fix/update manpage a bit.
+
+commit 1b34803d9a2b1c5912eddf1f4f633c9841b4dac3
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Mar 16 15:25:53 2012 +0100
+
+    srd/cli/qt:s/decoders/decoder/ for consistency.
+
+commit 76ae913df3a6aae23bc7b03052fcfd76a2b6054a
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Mar 18 14:33:02 2012 +0100
+
+    sr: Rename -f|--format to -O|--output-format.
+    
+    This is done for consistency with the -I|--input-format option. We now have:
+    
+    -i|--input-file
+    -o|--output-file
+    -I|--input-format
+    -O|--output-format
+
+commit 68cdf174d18df9b5a69eea60469caf32d265a906
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 29 22:32:34 2012 +0100
+
+    sr: Name all callback data 'cb_data'.
+
+commit a214a2eb2f86976d44b0e0689efad26cecf529f6
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 29 19:56:15 2012 +0100
+
+    sr/cli/gtk/qt: s/hw/driver/ in some places.
+
+commit 2df65e9fe9872dde357a40a388d0fee9b25edce8
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 29 19:17:36 2012 +0100
+
+    sr: s/sr_dev_probe_name/sr_dev_probe_name_set/.
+
+commit a210c4ccc2a730c8e02e3f330fbff36b7f81e2da
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Feb 28 23:52:30 2012 +0100
+
+    sr/cli/gtk/qt/: s/plugin/driver/.
+
+commit 9da0b05b3a2abafd3e346d0aec16534984da06db
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Feb 27 22:27:33 2012 +0100
+
+    sr: sr_samplerate_string: Allow 3.15Hz etc. as output.
+    
+    This is required for some hardware, e.g. ChronoVu LA8, where
+    33.333333 MHz or 2.439024 MHz are valid samplerates. This is because the
+    hardware takes a sampleperiod (in nanoseconds) as input, not a
+    samplerate (in Hz).
+
+commit bc8e240025339710ddf4f9f0827275ae9a1fe9b7
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 22 21:48:30 2012 +0100
+
+    sr: No need for dynamic hardware driver registration.
+    
+    We don't need or allow run-time registration of hardware
+    drivers/plugins, they're added at compile-time.
+
+commit 5c716f9b1ffd99b4be8e813f886e102d5cc56564
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 22 19:16:03 2012 +0100
+
+    cli/gtk/qt: nsis: Better installer filename.
+
+commit 203094ec951cbc2092afa3af1a579a3786a06454
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 22 18:57:34 2012 +0100
+
+    cli: nsis: Hook up to "Add/remove programs".
+
+commit eb1241e48880599eaee457ce37865ccfb7d26615
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 18 12:11:15 2012 +0100
+
+    sr: s/config_set/dev_config_set/.
+    
+    This functions is per-device-instance, so use dev_ as prefix as with
+    the other ones.
+
+commit 8d145d460662736b807b6b12226d4183ef1e9ae5
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 18 00:31:35 2012 +0100
+
+    sr/cli/gtk/qt: s/configuration/config/.
+
+commit edd79b3fa0bc67a0241bc047e2ff231ae30bdf1f
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 18 00:17:18 2012 +0100
+
+    sr/cli/gtk: s/capability/hwcap/.
+
+commit b921027525e5dbde831dfde9b0793b2afff3854d
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Feb 17 23:55:27 2012 +0100
+
+    sr/cli/gtk: A few more s/instance/inst/.
+
+commit 1e0f9ed9b98d05dad480098668882b554dbfd1d9
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Feb 17 22:25:01 2012 +0100
+
+    sr/cli/gtk/qt: s/device/dev/ in many places.
+    
+    Also, a few s/instance/inst/ occurences.
+
+commit fa7827c587a00a6aebc736bee34380abc7efc525
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Feb 15 03:18:48 2012 +0100
+
+    sr: rename all sr_hwplugin(s)_* functions to sr_hw_*
+
+commit 2358775c24a4c10dd55b2e0c12c24d6690b23daf
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Feb 14 03:43:28 2012 +0100
+
+    srd: rename public API functions to srd_thing_action format
+
+commit 15d920a97c10e6f04147094b48936468fac910b0
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Feb 14 03:28:53 2012 +0100
+
+    srd: don't load all protocol decoders unless we really need to.
+
+commit d26d259ff46e95a230d2c66bc0e1456655ac0480
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Feb 14 00:23:51 2012 +0100
+
+    sr: rename more functions to sr_thing_action format
+    
+    Also improved the interface to find capabilities in a hardware plugin.
+
+commit 548b7ddc8144ca0430f852c89ae4f2e61ab487d7
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Feb 13 15:23:16 2012 +0100
+
+    sr: rename hwplugin functions to sr_thing_action format
+
+commit 96e7e071c6ebe939166c1fc7c11e9f5528ef4288
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Feb 13 14:00:47 2012 +0100
+
+    sr: rename all sr_device_* functions to sr_dev_*
+
+commit f81faab0eaf03aeea6476112f0f4e91fee709efc
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Feb 13 03:36:32 2012 +0100
+
+    sr: more API cleanup and documentation
+
+commit d3a574f8d5b4333f63b5eb6712c28f4b49a8c013
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Feb 12 04:07:22 2012 +0100
+
+    srd: extra module path can now optionally be passed to srd_init()
+    
+    Also environment variable SIGROKDECODE_DIR, if present, is prepended
+    to the module path.
+
+commit fa230bebdcf2802057cc0720e07f65e4d3f1be6f
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 11 22:09:18 2012 +0100
+
+    Rename 'void *' callback parameters to 'user_data'.
+    
+    This is better, both for consistency reasons, and also because 'data' is
+    a bit too generic and might be confusing, especially since we have other
+    'data' fields in the code in various places.
+
+commit 7cb9889f780a78f728c10717625e288a20ea69cb
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 11 22:38:17 2012 +0100
+
+    srd: Every callback should have a 'void *' parameter.
+    
+    This is required in various situations and for various lib users,
+    especially so GUIs which might want to pass specific info via this
+    mechanism.
+
+commit c2c4a0def11bd2a589aa62f8f501ff20ef5f99e4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 11 20:06:46 2012 +0100
+
+    Use g_try_malloc/g_free/g_strdup consistently.
+    
+    Avoid plain malloc()/free() in sr/srd, especially in the API calls.
+    Also avoid g_malloc*() in favor of g_try_malloc*().
+    
+    Use g_strdup() instead of strdup() so that we can use g_free()
+    consistently everywhere.
+    
+    Exceptions: Stuff that is allocated via other libs (not using glib),
+    should also be properly free'd using the respective free-ing function
+    (instead of g_free()). Examples: Stuff allocated by libusb, libftdi, etc.
+    
+    Also, use sr_err() instead of sr_warn() for actual errors. sr_warn() is
+    meant for non-fatal/uncritical warnings.
+
+commit 878e90d9779a1881840454e2ad7bd90a4b470221
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sat Feb 11 18:06:56 2012 +0100
+
+    srd: rename all instance to inst
+
+commit bed505259f5027000028d5ee69a93f1b6231eb6d
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 8 22:04:13 2012 +0100
+
+    sr: Implement proper logging framework.
+    
+    This is pretty much identical to the current libsigrokdecode API/framework.
+
+commit f84f2fe0f99a5dfe3043589252d1069c7cdf5e5d
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 8 19:52:43 2012 +0100
+
+    srd: More consistent log related function names.
+    
+    Also, fix typos, constify some parameters, add more Doxygen comments.
+
+commit ba77cddf80202ec7a8a83ba83eddc24a29686e48
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 8 01:33:34 2012 +0100
+
+    cli: nsis: Fix copy-paste error.
+
+commit 69ddd7a5688c4041d61ceadb826ed5fb25b9daaa
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 8 01:24:06 2012 +0100
+
+    cli: nsis: Start menu shortcut (opens a "DOS box").
+
+commit 50f3b1f9d39ba96ba44840f864f56ecfc0134141
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 8 00:33:54 2012 +0100
+
+    Add missing logo icon files for Windows installers.
+
+commit 3005dc6a2462e6c4f24e1d69ab54af8a60c1d5b3
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 8 00:25:24 2012 +0100
+
+    nsis: Install missing msys-1.0.dll and msys-z.dll.
+    
+    Thanks John-Eric Kamps ("MockUp") for testing on a pristine
+    Windows 7 (64 bit).
+
+commit cde481b1ad620e0e406441fb3c102850a157d4af
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Feb 8 00:16:25 2012 +0100
+
+    nsis: Request admin privileges for Windows Vista and Windows 7.
+
+commit 2c45d10255617167e34674cd9e7536b8f0b3dc5b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Feb 6 21:39:13 2012 +0100
+
+    nsis: One installer file per frontend.
+    
+    There will be a sigrok-cli-installer-0.1.exe,
+    sigrok-gtk-installer-0.1.exe, and sigrok-qt-installer-0.1.exe,
+    for example.
+    
+    Also, add some more .gitignore entries.
+
+commit 60e19738ac42e01e50116d0b35ba010fef7904f2
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 4 10:41:30 2012 +0100
+
+    Project-wide consistent naming for #include guards.
+    
+    Document the naming scheme in HACKING.
+
+commit 1e0f763c235e12c6ae8a0d11dbe82b70f5fdd92e
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Feb 4 10:10:43 2012 +0100
+
+    sr/cli/gtk: Remove analog left-overs from API.
+    
+    This will come back in some form or another later, but for now
+    don't clutter the API with non-working stuff. Removing stuff from APIs
+    is not possible without breaking the API, adding stuff later is simpler.
+
+commit 948eb829cc0a446afd2b2f5599a7ab903a1f3955
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Feb 5 12:54:44 2012 +0100
+
+    autogen.sh: aclocal support for Windows XP/Vista/7.
+
+commit b46c4414825d1e8fb14a409bf21080974997fe57
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Feb 1 03:03:30 2012 +0100
+
+    cli: cleaned up debug output
+
+commit 9c9c1080ba34648ee1029978e07d6391ca8b5cbd
+Author: Anatoly Sokolov <aesok@post.ru>
+Date:   Sun Jan 29 16:56:06 2012 +0400
+
+    Add sr_device_get_info
+
+commit 2658103e629ffc7d44ff0e80e435b0f1f4cc5bfe
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jan 28 21:26:56 2012 +0100
+
+    Update/enforce/document our build requirements.
+
+commit 67ce0d2757835e1c23967277631dac87a61a3f82
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 27 08:22:19 2012 +0100
+
+    cli: correctly map probes on every instance, not just the last one.
+
+commit c9ec7f07fd28f70874e7ec15566442021333ec8d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Wed Jan 25 01:50:46 2012 +0100
+
+    cli: use new PD instance find function
+
+commit 9720f23aba9333a5bbbc6f7bb10cd07ff8734de6
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 24 03:50:33 2012 +0100
+
+    cli: minor code cleanups
+
+commit 905766867972aa1177cf6a23f42d0ceda096bbc8
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 24 02:04:14 2012 +0100
+
+    cli: when deciding which PD's output to show, use instance id
+
+commit 3c9c82c0c6a5eaaa14f4915d09fc65e632626231
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 24 00:11:45 2012 +0100
+
+    cli: use , as a separator for PD stacks, like all other options.
+
+commit 305661ad7e4d134c5ba7db54215ef7877734c78e
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jan 23 04:52:13 2012 +0100
+
+    cli: if PDs fail, signal a proper session shutdown instead of abort.
+
+commit 110aa72a47c771ef57e358f0df361451270f3710
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 22 03:30:33 2012 +0100
+
+    cli: minor cleanup
+
+commit 350beb4bff20be4fd766715a75d69989f301ede3
+Author: Anatoly Sokolov <aesok@post.ru>
+Date:   Sat Jan 21 18:34:11 2012 +0400
+
+    add SR_HWCAP_DEMO_DEVICE capability
+
+commit 248ad03233cf82ec6a453343a9f9b9b13233724d
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Fri Jan 20 22:26:47 2012 +0100
+
+    cli: configuring SRD probes no longer deletes them from the hash
+
+commit a1418b73d4f33f1439b7e2c94be9019c3085a555
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 17 03:38:07 2012 +0100
+
+    CLI: use the new per-PD option setting API
+
+commit 41bc9e4f7d6521c05d9226f4f2e38f779d984e6c
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 15 23:24:30 2012 +0100
+
+    CLI: print sample numbers on annotations on log level > 2
+
+commit 838285aa2e112b526f944b81070d5525de9b634a
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 15 23:23:25 2012 +0100
+
+    CLI: properly feed SRD a sample number with every chunk of data.
+
+commit 4611cadf654ea6d0a64c0d5ae8d766f68bc15165
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Jan 15 20:47:26 2012 +0100
+
+    cli: manpage: Add sigrok-gtk(1) to "SEE ALSO".
+
+commit 93a0d36c2227cea998eb3234f7178cf896a3229f
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sun Jan 15 20:30:10 2012 +0100
+
+    frontends: Check for sr/srd minimum versions.
+
+commit 71b1ea4ec4ad25a396fbdd79696af03c0a197616
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 15 04:02:21 2012 +0100
+
+    CLI: when invoked with only -a <pd>, the PD's documentation is shown.
+
+commit 60ca1ad65dac60ad90089391875488e53f16114f
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jan 14 21:41:41 2012 +0100
+
+    Improve 'longname' PD strings, use in 'sigrok-cli -V'.
+
+commit ca07c71183a88c7f6eeb47c0d11399f0145562a1
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Jan 10 21:32:26 2012 +0100
+
+    cli: Fix left-over ANN/PROTO names.
+
+commit 9f4a898ee72a89d6bf213202e792e9b4431a9572
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Tue Jan 10 00:25:16 2012 +0100
+
+    Stacked protocol decoders implementation.
+    
+    The DDC decoder takes input from the I2C PD.
+
+commit 6de7ec06e266e8c075708b560584e7fcab1e0b91
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Mon Jan 9 12:54:03 2012 +0100
+
+    cli: make libsigrokdecode follow loglevel setting
+
+commit 213c6cead388576c01b53bf8d28d59581b7e4c59
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Sun Jan 8 03:20:12 2012 +0100
+
+    pass PD output to the calling frontend, simple annotation viewer in CLI.
+
+commit 5aa4e6d953e419f304a7e863ec4a5660e91bd63b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jan 7 14:46:24 2012 +0100
+
+    cli: Better debug messages for setting PD probes.
+
+commit 760f6d3a7e2a621a94a8649aa89c69d985a4b93e
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Sat Jan 7 14:15:10 2012 +0100
+
+    More .gitignore files cleanup.
+
+commit 1eb238a0b0c906441104d367f6ccafdb49f0e7f4
+Author: Renato Caldas <rmsc@fe.up.pt>
+Date:   Fri Jan 6 11:07:37 2012 +0000
+
+    Added "autostuff" to the .gitignore.
+
+commit ee38f0beb0bca30a65b8fde65aef23ba17927adb
+Author: Bert Vermeulen <bert@biot.com>
+Date:   Thu Jan 5 03:31:36 2012 +0100
+
+    new srd_logic type implementation for PDs to iterate over.
+
+commit b4dfa44d2982067e2447356ca3b33dfc00264622
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Jan 4 15:26:41 2012 +0100
+
+    A few more fixes for configure.ac files.
+    
+    Add missing checks and quotes, remove superfluous checks, etc.
+
+commit 81f487d6a14133ab56466316499ce7cd1cff2d9b
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Jan 4 03:09:20 2012 +0100
+
+    cli: configure.ac: Show config summary.
+    
+    Also, add missing glib-2.0 check, we use it directly in the CLI too,
+    not just due to the libsigrok dependency.
+
+commit 91425119e426f9ff76ae0636cd06ab6e9c8dbab4
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Wed Jan 4 00:49:06 2012 +0100
+
+    cli: configure.ac: Fix typo.
+
+commit d04f8fdcc1150f5775ee0ae680fb2fad0341b55d
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Tue Jan 3 21:55:48 2012 +0100
+
+    Put most autotools files into autostuff/.
+    
+    This yields a slightly more "tidy" top-level directory.
+
+commit 1999ae06a4d06ea323218707f8e8a3c59ed404e7
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Mon Jan 2 14:33:42 2012 +0100
+
+    cli: Add a few more static keywords.
+
+commit 34c6b368f40e5c570e2272fab9afa2bfde3ba207
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Dec 30 22:38:25 2011 +0100
+
+    Split README, add appropriate ones per-project.
+
+commit 43e5747a59ed92243c217f7e36da2ac35bbcd80d
+Author: Uwe Hermann <uwe@hermann-uwe.de>
+Date:   Fri Dec 30 11:23:22 2011 +0100
+
+    Rename sub-project dirs to their correct name.
